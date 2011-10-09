@@ -25,6 +25,6 @@ THE SOFTWARE.
 
 About
 =====
-Tantalum is simple algebraic computation system written in F#.
+Tantalum a is simple algebraic computation system written in F#.
 
 Stay tuned ;)
