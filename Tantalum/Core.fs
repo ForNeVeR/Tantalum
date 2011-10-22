@@ -40,7 +40,7 @@ module Tantalum.Core
                     match otherExpression with
                      | SymbolicConstant otherValue when value = otherValue -> true
                      | _                                                   -> false
-                | _                    -> false
+                | _ -> false
             | _ -> false
 
     let rec simplify expression =
