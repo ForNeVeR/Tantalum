@@ -4,23 +4,31 @@ module Tantalum.Input
     open FParsec
     open Tantalum.Core
 
-    let expressionParser = new OperatorPrecedenceParser<Node, unit, unit> ()
+    let expressionParser = new OperatorPrecedenceParser<Expression, unit, unit> ()
     let expression = expressionParser.ExpressionParser
     let number =
         regex @"[+-]?[\d]+(\.[\d]+)?([eE][+-]?[\d]+(\.[\d]+)?)?"
-        |>> fun s -> Constant <| Symbol s
+        |>> fun s -> SymbolicConstant s
 
     expressionParser.TermParser <-
         number
         <|> between (pstring "(") (pstring ")") expression
 
-    expressionParser.AddOperator
-    <| InfixOperator ("-", spaces, 1, Associativity.Left,
-        fun a b -> Operation (Substraction, a, b))
+    let addBinaryOperator symbol priority expression =
+        expressionParser.AddOperator <| InfixOperator (symbol, spaces, priority, Associativity.Left, expression)
 
-    expressionParser.AddOperator
-    <| InfixOperator ("+", spaces, 1, Associativity.Left,
-         fun a b -> Operation (Addition, a, b))
+    let rec substraction a b =
+        BinaryOperator ("-", (-),
+            (fun arg1 arg2 -> if arg1 = arg2 then zero else substraction a b),
+            (a, b))
+
+    let rec addition a b =
+        BinaryOperator ("+", (+),
+            (fun arg1 arg2 -> addition a b),
+            (a, b))    
+    
+    addBinaryOperator "-" 1 (fun a b -> substraction a b)
+    addBinaryOperator "+" 1 (fun a b -> addition a b)
 
     let parse message =
         match run expression message with
@@ -34,8 +42,8 @@ module Tantalum.Input
             let result = 
                 try
                     let operation = parse input |> simplify
-                    let output = calculate operation
-                    String.Format ("{0} = {1}d", operation, output)
+                    let output = execute operation
+                    String.Format ("{0} = {1}b", operation, output)
                 with
                     | error -> error.Message
             printfn "%s" result
