@@ -32,6 +32,14 @@ module Tantalum.Core
                      | BinaryConstant 0.0   -> true
                      | _                    -> false
                 | SymbolicConstant "0" -> otherExpression.Equals expression
+                | BinaryConstant value ->
+                    match otherExpression with
+                     | BinaryConstant otherValue when value = otherValue -> true
+                     | _                                                 -> false
+                | SymbolicConstant value ->
+                    match otherExpression with
+                     | SymbolicConstant otherValue when value = otherValue -> true
+                     | _                                                   -> false
                 | _                    -> false
             | _ -> false
 
