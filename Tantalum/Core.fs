@@ -2,9 +2,6 @@
 module Tantalum.Core
     open System
 
-    let convert (symbol : string) =
-         Double.Parse(symbol)
-
     type Constant =
         | Symbol of string
         | Double of double
@@ -40,7 +37,7 @@ module Tantalum.Core
     let rec calculate node : double =
         match node with
         | Operation (operation, node1, node2) -> apply operation (calculate node1) (calculate node2)
-        | Constant (Symbol symbol)            -> convert symbol
+        | Constant (Symbol symbol)            -> Convert.ToDouble symbol
         | Constant (Double double)            -> double
 
     let simplify node : Node =
