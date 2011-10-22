@@ -27,8 +27,8 @@ module Tantalum.Input
             (fun arg1 arg2 -> addition a b),
             (a, b))    
     
-    addBinaryOperator "-" 1 (fun a b -> substraction a b)
-    addBinaryOperator "+" 1 (fun a b -> addition a b)
+    addBinaryOperator "-" 1 substraction
+    addBinaryOperator "+" 1 addition
 
     let parse message =
         match run expression message with
