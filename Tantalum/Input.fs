@@ -10,8 +10,8 @@ module Tantalum.Input
     let rec repl =
         Console.Write "> "
         let input = Console.ReadLine ()
-        let operation = parse input
+        let operation = parse input |> simplify
         let output = calculate operation
-        Console.WriteLine output
+        Console.WriteLine ("{0} = {1}d", operation, output)
 
     repl
