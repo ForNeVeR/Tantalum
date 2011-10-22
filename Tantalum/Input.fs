@@ -25,14 +25,19 @@ module Tantalum.Input
     let parse message =
         match run expression message with
         | Success (result, _, _) -> result
-        | Failure (msg, err, _)  -> printf "%s" msg; failwith msg
+        | Failure (msg, err, _)  -> failwith msg
 
-    let rec repl =
+    let repl =
         while true do
-        Console.Write "> "
-        let input = Console.ReadLine ()
-        let operation = parse input |> simplify
-        let output = calculate operation
-        Console.WriteLine ("{0} = {1}d", operation, output)
+            Console.Write "> "
+            let input = Console.ReadLine ()
+            let result = 
+                try
+                    let operation = parse input |> simplify
+                    let output = calculate operation
+                    String.Format ("{0} = {1}d", operation, output)
+                with
+                    | error -> error.Message
+            printfn "%s" result
 
     repl
