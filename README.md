@@ -30,4 +30,26 @@ About
 =====
 Tantalum a is simple algebraic computation system written in F#.
 
-Stay tuned ;)
+Structure overview
+==================
+Tantalum project consists of two F# modules:
+
+### Tantalum.Core
+This is a library for possible use by external code. It contains main classes'
+(such as `Node`, `Operation`, etc.) and functions' (such as `calculate`)
+definitions.
+
+### Tantalum.Input
+This is input module for string interpreting.
+
+Usage
+=====
+Try to compile Tantalum application and run its executable. It'll welcome you
+with simple `> ` prompt. Feel free to enter simple algebraic expressions there
+and you'll get and answers.
+
+For example, consider such simple session:
+	> 2 + 2
+	4
+
+(More examples to come.)
