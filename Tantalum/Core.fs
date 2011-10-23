@@ -8,12 +8,6 @@ module Tantalum.Core
     /// Type for symbolic values.
     type Symbol = string
 
-    /// Binary zero constant.
-    let BinaryZero = 0.0
-
-    /// Symbolic zero constant.
-    let SymbolicZero = "0"
-
     /// Converts symbolic value to binary value.
     let Convert (symbol : Symbol) : Binary =
         Convert.ToDouble symbol
@@ -34,10 +28,16 @@ module Tantalum.Core
 
         override expression.ToString () =
             match expression with
-            | BinaryConstant   value                        -> sprintf "(%fb)" value
-            | SymbolicConstant symbol                       -> sprintf "(%s)" symbol
-            | UnaryOperation   (symbol, _, _, arg)          -> sprintf "(%s %s)" symbol (arg.ToString ())
-            | BinaryOperator   (symbol, _, _, (arg1, arg2)) -> sprintf "(%s %s %s)" (arg1.ToString ()) symbol (arg2.ToString ())
+            | BinaryConstant value ->
+                if value < 0.0
+                then sprintf "(%fb)" value
+                else sprintf "%fb" value
+            | SymbolicConstant symbol ->
+                if Convert symbol < 0.0
+                then sprintf "(%s)" symbol
+                else sprintf "%s" symbol
+            | UnaryOperation (symbol, _, _, arg)          -> sprintf "(%s %s)" symbol (arg.ToString ())
+            | BinaryOperator (symbol, _, _, (arg1, arg2)) -> sprintf "(%s %s %s)" (arg1.ToString ()) symbol (arg2.ToString ())
 
         override expression.Equals other =
             match other with
@@ -59,6 +59,12 @@ module Tantalum.Core
                      | _                                                   -> false
                 | _ -> false
             | _ -> false
+
+    /// Binary zero constant.
+    let BinaryZero = BinaryConstant 0.0
+
+    /// Symbolic zero constant.
+    let SymbolicZero = SymbolicConstant "0"
 
     /// Simplification function. Never causes any accuracy loss in expression.
     let rec Simplify expression =

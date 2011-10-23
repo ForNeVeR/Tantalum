@@ -5,7 +5,7 @@
         BinaryOperator ("-", (-),
             (fun arg1 arg2 ->
                 if arg1 = arg2
-                then zero
+                then SymbolicZero
                 else Substraction arg1 arg2),
             (a, b))
 
