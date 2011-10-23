@@ -80,3 +80,10 @@ module Tantalum.Core
         | SymbolicConstant symbol                      -> Convert symbol
         | UnaryOperation   (_, apply, _, arg)          -> apply (Execute arg)
         | BinaryOperator   (_, apply, _, (arg1, arg2)) -> apply (Execute arg1) (Execute arg2)
+
+    /// Tests expression's equality to one.
+    let EqualsOne expression =
+        match Simplify expression with
+        | SymbolicConstant "1"
+        | BinaryConstant   1.0 -> true
+        | _                    -> false

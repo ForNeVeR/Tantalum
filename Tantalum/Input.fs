@@ -21,6 +21,7 @@ module Tantalum.Input
 
     RegisterBinaryOperator "-" 1 Associativity.Left Substraction
     RegisterBinaryOperator "+" 1 Associativity.Left Addition
+    RegisterBinaryOperator "*" 2 Associativity.Left Multiplication
 
     /// Parses message and returns corresponding Expression.
     let Parse message =
