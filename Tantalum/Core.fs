@@ -2,16 +2,33 @@
 module Tantalum.Core
     open System
 
+    /// Type for binary values.
+    type Binary = double
+
+    /// Type for symbolic values.
+    type Symbol = string
+
+    /// Binary zero constant.
+    let BinaryZero = 0.0
+
+    /// Symbolic zero constant.
+    let SymbolicZero = "0"
+
+    /// Converts symbolic value to binary value.
+    let Convert (symbol : Symbol) : Binary =
+        Convert.ToDouble symbol
+
+    /// Symbolic expression type. Will be computed with possible accuracy loss only on demand.
     [<CustomEquality; NoComparison>]
-    type Expression = 
-        | BinaryConstant   of double
-        | SymbolicConstant of string
+    type Expression =
+        | BinaryConstant   of Binary
+        | SymbolicConstant of Symbol
         | UnaryOperation   of string
-                            * (double -> double)
+                            * (Binary -> Binary)
                             * (Expression -> Expression)
                             * Expression
         | BinaryOperator   of string
-                            * (double -> double -> double)
+                            * (Binary -> Binary -> Binary)
                             * (Expression -> Expression -> Expression)
                             * (Expression * Expression)
 
@@ -43,17 +60,17 @@ module Tantalum.Core
                 | _ -> false
             | _ -> false
 
-    let rec simplify expression =
+    /// Simplification function. Never causes any accuracy loss in expression.
+    let rec Simplify expression =
         match expression with
-        | UnaryOperation (_, _, simplification, arg)          -> simplification (simplify arg)
-        | BinaryOperator (_, _, simplification, (arg1, arg2)) -> simplification (simplify arg1) (simplify arg2)
+        | UnaryOperation (_, _, simplification, arg)          -> simplification (Simplify arg)
+        | BinaryOperator (_, _, simplification, (arg1, arg2)) -> simplification (Simplify arg1) (Simplify arg2)
         | other                                               -> other
 
-    let rec execute expression =
+    /// Calculates expression to binary number format. Can cause accuracy loss.
+    let rec Execute expression =
         match expression with
         | BinaryConstant   value                       -> value
-        | SymbolicConstant symbol                      -> Convert.ToDouble symbol
-        | UnaryOperation   (_, apply, _, arg)          -> apply (execute arg)
-        | BinaryOperator   (_, apply, _, (arg1, arg2)) -> apply (execute arg1) (execute arg2)
-
-    let zero = SymbolicConstant "0"
+        | SymbolicConstant symbol                      -> Convert symbol
+        | UnaryOperation   (_, apply, _, arg)          -> apply (Execute arg)
+        | BinaryOperator   (_, apply, _, (arg1, arg2)) -> apply (Execute arg1) (Execute arg2)

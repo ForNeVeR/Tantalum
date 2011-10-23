@@ -34,8 +34,8 @@ module Tantalum.Input
             let input = Console.ReadLine ()
             let result = 
                 try
-                    let operation = Parse input |> simplify
-                    let output = execute operation
+                    let operation = Parse input |> Simplify
+                    let output = Execute operation
                     String.Format ("{0} = {1}b", operation, output)
                 with
                     | error -> error.Message
