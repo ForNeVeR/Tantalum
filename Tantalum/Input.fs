@@ -3,10 +3,11 @@ module Tantalum.Input
     open System
     open FParsec
     open Tantalum.Core
+    open Tantalum.Operations
 
-    let expressionParser = new OperatorPrecedenceParser<Expression, unit, unit> ()
-    let expression = expressionParser.ExpressionParser
-    let number =
+    let private expressionParser = new OperatorPrecedenceParser<Expression, unit, unit> ()
+    let private expression = expressionParser.ExpressionParser
+    let private number =
         regex @"[+-]?[\d]+(\.[\d]+)?([eE][+-]?[\d]+(\.[\d]+)?)?"
         |>> fun s -> SymbolicConstant s
 
@@ -14,34 +15,26 @@ module Tantalum.Input
         number
         <|> between (pstring "(") (pstring ")") expression
 
-    let addBinaryOperator symbol priority expression =
-        expressionParser.AddOperator <| InfixOperator (symbol, spaces, priority, Associativity.Left, expression)
+    /// Registers binary operator for use in input stream.
+    let RegisterBinaryOperator symbol priority associativity expression =
+        expressionParser.AddOperator <| InfixOperator (symbol, spaces, priority, associativity, expression)
 
-    let rec substraction a b =
-        BinaryOperator ("-", (-),
-            (fun arg1 arg2 -> if arg1 = arg2 then zero else substraction a b),
-            (a, b))
+    RegisterBinaryOperator "-" 1 Associativity.Left Substraction
+    RegisterBinaryOperator "+" 1 Associativity.Left Addition
 
-    let rec addition a b =
-        BinaryOperator ("+", (+),
-            (fun arg1 arg2 -> addition a b),
-            (a, b))    
-    
-    addBinaryOperator "-" 1 substraction
-    addBinaryOperator "+" 1 addition
-
-    let parse message =
+    /// Parses message and returns corresponding Expression.
+    let Parse message =
         match run expression message with
         | Success (result, _, _) -> result
         | Failure (msg, err, _)  -> failwith msg
 
-    let repl =
+    let private repl =
         while true do
             Console.Write "> "
             let input = Console.ReadLine ()
             let result = 
                 try
-                    let operation = parse input |> simplify
+                    let operation = Parse input |> simplify
                     let output = execute operation
                     String.Format ("{0} = {1}b", operation, output)
                 with
