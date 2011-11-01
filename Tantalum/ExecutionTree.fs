@@ -1,5 +1,4 @@
 ﻿namespace Tantalum
     type ExecutionTree =
-        | Function Function * ExecutionTree seq
-        | Constant Constant
-
+        | Function of Function * ExecutionTree seq
+        | Constant of Constant
