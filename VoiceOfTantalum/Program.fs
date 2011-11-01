@@ -1,5 +1,5 @@
 ﻿/// Tantalum command line input module.
-module Tantalum.Input
+module VoiceOfTantalum.Program
     open System
     open FParsec
     open Tantalum.Core
