@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>1715d6d1-e889-44b7-83b5-1b524ddcc523</ProjectGuid>
+    <ProjectGuid>{11e9305c-10ce-48b0-958a-92ee8dc86465}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>VoiceOfTantalum</RootNamespace>
     <AssemblyName>VoiceOfTantalum</AssemblyName>
@@ -35,6 +35,12 @@
     <DocumentationFile>bin\Release\VoiceOfTantalum.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FParsec">
+      <HintPath>..\Third-party\FParsec.dll</HintPath>
+    </Reference>
+    <Reference Include="FParsecCS">
+      <HintPath>..\Third-party\FParsecCS.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
@@ -43,6 +49,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Tantalum\Tantalum.fsproj">
+      <Name>Tantalum</Name>
+      <Project>{0b5c6005-3f68-4ac3-94aa-e07aedb8a751}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />

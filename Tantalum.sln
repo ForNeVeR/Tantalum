@@ -8,6 +8,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "VoiceOfTantalum", "VoiceOfTantalum\VoiceOfTantalum.fsproj", "{11E9305C-10CE-48B0-958A-92EE8DC86465}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -18,6 +20,10 @@ Global
 		{0B5C6005-3F68-4AC3-94AA-E07AEDB8A751}.Debug|x86.Build.0 = Debug|x86
 		{0B5C6005-3F68-4AC3-94AA-E07AEDB8A751}.Release|x86.ActiveCfg = Release|x86
 		{0B5C6005-3F68-4AC3-94AA-E07AEDB8A751}.Release|x86.Build.0 = Release|x86
+		{11E9305C-10CE-48B0-958A-92EE8DC86465}.Debug|x86.ActiveCfg = Debug|x86
+		{11E9305C-10CE-48B0-958A-92EE8DC86465}.Debug|x86.Build.0 = Debug|x86
+		{11E9305C-10CE-48B0-958A-92EE8DC86465}.Release|x86.ActiveCfg = Release|x86
+		{11E9305C-10CE-48B0-958A-92EE8DC86465}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

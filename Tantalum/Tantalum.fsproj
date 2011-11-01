@@ -44,16 +44,8 @@
     <Compile Include="Executor.fs" />
     <Compile Include="Core.fs" />
     <Compile Include="Operations.fs" />
-    <Compile Include="Input.fs" />
-    <Compile Include="Patterns.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FParsec">
-      <HintPath>..\Third-party\FParsec.dll</HintPath>
-    </Reference>
-    <Reference Include="FParsecCS">
-      <HintPath>..\Third-party\FParsecCS.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
