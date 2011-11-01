@@ -43,8 +43,6 @@
     <Compile Include="ExecutionTree.fs" />
     <Compile Include="Pattern.fs" />
     <Compile Include="Executor.fs" />
-    <Compile Include="Core.fs" />
-    <Compile Include="Operations.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
