@@ -41,6 +41,7 @@
     <Compile Include="Constant.fs" />
     <Compile Include="Function.fs" />
     <Compile Include="ExecutionTree.fs" />
+    <Compile Include="Pattern.fs" />
     <Compile Include="Executor.fs" />
     <Compile Include="Core.fs" />
     <Compile Include="Operations.fs" />
