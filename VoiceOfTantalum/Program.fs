@@ -2,14 +2,13 @@
 module VoiceOfTantalum.Program
     open System
     open FParsec
-    open Tantalum.Core
-    open Tantalum.Operations
+    open Tantalum
 
-    let private expressionParser = new OperatorPrecedenceParser<Expression, unit, unit> ()
+    let private expressionParser = new OperatorPrecedenceParser<ExecutionTree, unit, unit> ()
     let private expression = expressionParser.ExpressionParser
     let private number =
         regex @"[+-]?[\d]+(\.[\d]+)?([eE][+-]?[\d]+(\.[\d]+)?)?"
-        |>> fun s -> SymbolicConstant s
+        |>> fun s -> Constant (Symbolic s)
 
     expressionParser.TermParser <-
         number
