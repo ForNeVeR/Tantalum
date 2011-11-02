@@ -34,10 +34,9 @@ Structure overview
 ------------------
 Tantalum project consists of two assemblies:
 
-### Tantalum.Core
-This is a library for possible use by external code. It contains main types'
-(such as `Expression`) functions' (such as `Simplify`, `Execute`) and
-constants' definitions.
+### Tantalum
+This is a library for possible use by external code. It contains main Tantalum
+types.
 
 ### VoiceOfTantalum
 Contains the input module for string interpreting.
