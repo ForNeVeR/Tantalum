@@ -45,11 +45,12 @@ Usage
 -----
 Try to compile Tantalum application and run its executable. It'll welcome you
 with simple `> ` prompt. Feel free to enter simple algebraic expressions there
-and you'll get and answers.
+and you'll get the answers.
 
 For example, consider such simple session:
 
     > 2 + 2
-    4
+    ... = 4.0b
 
-(More examples to come.)
+Note that `b` letter stands for so called "binary" representation of
+calculation result, as opposed to its symbolic representation.
