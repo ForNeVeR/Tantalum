@@ -32,15 +32,15 @@ Tantalum a is simple algebraic computation system written in F#.
 
 Structure overview
 ------------------
-Tantalum project consists of two F# modules:
+Tantalum project consists of two assemblies:
 
 ### Tantalum.Core
-This is a library for possible use by external code. It contains main classes'
-(such as `Node`, `Operation`, etc.) and functions' (such as `calculate`)
-definitions.
+This is a library for possible use by external code. It contains main types'
+(such as `Expression`) functions' (such as `Simplify`, `Execute`) and
+constants' definitions.
 
-### Tantalum.Input
-This is input module for string interpreting.
+### VoiceOfTantalum
+Contains the input module for string interpreting.
 
 Usage
 -----
