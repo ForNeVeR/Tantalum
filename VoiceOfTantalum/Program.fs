@@ -33,6 +33,7 @@ module VoiceOfTantalum.Program
     RegisterBinaryOperator "+" 1 Associativity.Left
     RegisterBinaryOperator "*" 2 Associativity.Left
     RegisterBinaryOperator "/" 2 Associativity.Left
+    RegisterBinaryOperator "^" 3 Associativity.Right
 
     /// Parses message and returns corresponding Expression.
     let Parse message =
@@ -48,7 +49,8 @@ module VoiceOfTantalum.Program
     executor.AddBinaryFunction {Id = "+"; Arity = 2} <| fun (a, b) -> a + b
     executor.AddBinaryFunction {Id = "-"; Arity = 2} <| fun (a, b) -> a - b
     executor.AddBinaryFunction {Id = "*"; Arity = 2} <| fun (a, b) -> a * b
-    executor.AddBinaryFunction {Id = "/"; Arity = 2} <| fun (a, b) -> a / b    
+    executor.AddBinaryFunction {Id = "/"; Arity = 2} <| fun (a, b) -> a / b
+    executor.AddBinaryFunction {Id = "^"; Arity = 2} <| Math.Pow
 
     let private repl =
         while true do
