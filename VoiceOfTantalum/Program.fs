@@ -14,13 +14,20 @@ module VoiceOfTantalum.Program
         number
         <|> between (pstring "(") (pstring ")") expression
 
-    // TODO: RegisterUnaryOperator
+    /// Registers prefix unary operator for use in input stream.
+    let RegisterUnaryOperator symbol priority =
+        expressionParser.AddOperator
+        <| PrefixOperator (symbol, spaces, priority, false,
+                           fun a -> Function ({Id = symbol; Arity = 1}, [|a|]))
 
     /// Registers binary operator for use in input stream.
     let RegisterBinaryOperator symbol priority associativity =
         expressionParser.AddOperator
         <| InfixOperator (symbol, spaces, priority, associativity,
                           fun a b -> Function ({Id = symbol; Arity = 2}, [|a; b|]))
+
+    RegisterUnaryOperator "+" 1
+    RegisterUnaryOperator "-" 1
 
     RegisterBinaryOperator "-" 1 Associativity.Left
     RegisterBinaryOperator "+" 1 Associativity.Left
@@ -35,10 +42,13 @@ module VoiceOfTantalum.Program
 
     let executor = new Executor ()
 
+    executor.AddUnaryFunction {Id = "+"; Arity = 1} <| fun a -> a
+    executor.AddUnaryFunction {Id = "-"; Arity = 1} <| fun a -> -a
+    
     executor.AddBinaryFunction {Id = "+"; Arity = 2} <| fun (a, b) -> a + b
     executor.AddBinaryFunction {Id = "-"; Arity = 2} <| fun (a, b) -> a - b
     executor.AddBinaryFunction {Id = "*"; Arity = 2} <| fun (a, b) -> a * b
-    executor.AddBinaryFunction {Id = "/"; Arity = 2} <| fun (a, b) -> a / b
+    executor.AddBinaryFunction {Id = "/"; Arity = 2} <| fun (a, b) -> a / b    
 
     let private repl =
         while true do
