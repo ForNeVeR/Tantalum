@@ -49,6 +49,7 @@ with simple `> ` prompt. Feel free to enter simple algebraic expressions there
 and you'll get and answers.
 
 For example, consider such simple session:
+
     > 2 + 2
     4
 
