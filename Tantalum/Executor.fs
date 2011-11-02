@@ -35,6 +35,7 @@
         member executor.AddNormalizationPattern (pattern : Pattern) = ()
 
         member executor.CalculateSymbolic (expression: ExecutionTree) =
+            // TODO: A crap! Rewrite this!
             let rec patternReplace pattern (variables : IDictionary<string, ExecutionTree>) =
                 match pattern with
                 | (Template (Variable var)) -> variables.[var]
@@ -57,8 +58,13 @@
                         else (false, Function (f1, funcArgs))
                 | (_,                       _)            -> (false, expression)
             
-            Seq.map (fun p -> applyPattern p expression (new Dictionary<string, ExecutionTree> ())) simplificationPatterns
-            |> Seq.find (fun res -> fst res)
+            let result = 
+                simplificationPatterns
+                |> Seq.map (fun p -> applyPattern p expression (new Dictionary<string, ExecutionTree> ()))
+                |> Seq.tryFind (fun res -> fst res)
+            match result with
+            | Some e -> e
+            | None   -> (false, expression)
             
         member executor.CalculateBinary (expression: ExecutionTree) =
             match expression with
