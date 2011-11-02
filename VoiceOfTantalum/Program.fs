@@ -8,7 +8,7 @@ module VoiceOfTantalum.Program
     let private expression = expressionParser.ExpressionParser
     let private number =
         regex @"[+-]?[\d]+(\.[\d]+)?([eE][+-]?[\d]+(\.[\d]+)?)?"
-        |>> fun s -> Constant (Symbolic s)
+        |>> fun s -> Constant (Symbolic <| Symbol s)
 
     expressionParser.TermParser <-
         number

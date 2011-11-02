@@ -1,2 +1,6 @@
 ﻿namespace Tantalum
-    type Symbol = string
+    open System
+
+    type Symbol (s : string) = 
+        member symbol.ToBinary () : double =
+            Double.Parse s
