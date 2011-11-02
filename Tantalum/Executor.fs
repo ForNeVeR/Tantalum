@@ -35,8 +35,31 @@
         member executor.AddNormalizationPattern (pattern : Pattern) = ()
 
         member executor.CalculateSymbolic (expression: ExecutionTree) =
-            expression
-
+            let rec patternReplace pattern (variables : IDictionary<string, ExecutionTree>) =
+                match pattern with
+                | (Template (Variable var)) -> variables.[var]
+                | Constant _ as c           -> c
+                | Function (f, args)        -> Function (f, Seq.map (fun pat -> patternReplace pat variables) args)
+                | _                         -> failwith "Invalid or unmatched pattern."
+            
+            let rec applyPattern (pattern : Pattern) expression variables =
+                match (pattern.Left, expression) with
+                | (p,                       e) when p = e -> (true, patternReplace pattern.Right variables)
+                | (Template Anything,       _)            -> (true, patternReplace pattern.Right variables)
+                | (Template (Variable var), e)            ->
+                    variables.[var] <- e
+                    (true, patternReplace pattern.Right variables)
+                | (Function (f1, patternArgs),
+                    Function (f2, funcArgs)) when f1 = f2 ->
+                        let results = Seq.map executor.CalculateSymbolic funcArgs
+                        if Seq.forall (fun res -> fst res) results
+                        then (true, Function (f1, results |> Seq.map snd))
+                        else (false, Function (f1, funcArgs))
+                | (_,                       _)            -> (false, expression)
+            
+            Seq.map (fun p -> applyPattern p expression (new Dictionary<string, ExecutionTree> ())) simplificationPatterns
+            |> Seq.find (fun res -> fst res)
+            
         member executor.CalculateBinary (expression: ExecutionTree) =
             match expression with
             | Constant (Double d)               -> d

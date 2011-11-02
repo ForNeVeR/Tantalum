@@ -58,9 +58,12 @@ module VoiceOfTantalum.Program
             let input = Console.ReadLine ()
             let result = 
                 try
-                    let operation = Parse input |> executor.CalculateSymbolic
-                    let output = executor.CalculateBinary operation
-                    sprintf "%A = %Ab" operation output
+                    match Parse input |> executor.CalculateSymbolic with
+                    | (true,  operation) ->
+                        let output = executor.CalculateBinary operation
+                        sprintf "%A = %Ab" operation output
+                    | (false, tree)       ->
+                        sprintf "%A = ERROR" tree
                 with
                     | error -> error.Message
             printfn "%s" result

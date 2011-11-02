@@ -1,6 +1,6 @@
 ﻿namespace Tantalum
     type Pattern =
         {
-            left : ExecutionTree;
-            right : ExecutionTree
+            Left : ExecutionTree;
+            Right : ExecutionTree
         }
