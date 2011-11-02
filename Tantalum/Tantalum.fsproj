@@ -40,6 +40,7 @@
     <Compile Include="Symbol.fs" />
     <Compile Include="Constant.fs" />
     <Compile Include="Function.fs" />
+    <Compile Include="Template.fs" />
     <Compile Include="ExecutionTree.fs" />
     <Compile Include="Pattern.fs" />
     <Compile Include="Executor.fs" />

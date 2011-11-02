@@ -6,6 +6,7 @@
 
     type Executor () =
         let functions = new Dictionary<Function, Functor> ()
+        let simplificationPatterns = new HashSet<Pattern> ()
 
         member executor.AddUnaryFunction (func : Function) (applyFunctor : double -> double) =
             if func.Arity = 1
@@ -27,7 +28,10 @@
                         | _            -> failwith "Wrong number of arguments for binary function."
             else failwith "Wrong binary function definition."
 
-        member executor.AddSimplificationPattern (pattern : Pattern) = ()
+        member executor.AddSimplificationPattern (pattern : Pattern) = 
+            simplificationPatterns.Add pattern |> ignore
+            ()
+
         member executor.AddNormalizationPattern (pattern : Pattern) = ()
 
         member executor.CalculateSymbolic (expression: ExecutionTree) =
@@ -44,3 +48,4 @@
                     |> Seq.toList
                     |> apply 
             | Function _                        -> failwith "Wrong number of arguments."
+            | Template _                        -> failwith "Attempt to calculate template expression."
