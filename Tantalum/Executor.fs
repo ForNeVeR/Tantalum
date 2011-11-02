@@ -1,5 +1,5 @@
 ﻿namespace Tantalum
-    type Executor =
+    type Executor () =
         member executor.AddUnaryFunction (func : Function) (applyFunctor : double -> double) = ()
         member executor.AddBinaryFunction (func : Function) (applyFunctor : double * double -> double) = ()
 
