@@ -2,7 +2,7 @@
 ========
 
 License
-=======
+-------
 Copyright (C) 2011 by ForNeVeR
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,11 +27,11 @@ Tantalum uses FParsec library distributed under terms of The Simplified BSD
 License a.k.a. "2‐clause BSD License".
 
 About
-=====
+-----
 Tantalum a is simple algebraic computation system written in F#.
 
 Structure overview
-==================
+------------------
 Tantalum project consists of two F# modules:
 
 ### Tantalum.Core
@@ -43,13 +43,14 @@ definitions.
 This is input module for string interpreting.
 
 Usage
-=====
+-----
 Try to compile Tantalum application and run its executable. It'll welcome you
 with simple `> ` prompt. Feel free to enter simple algebraic expressions there
 and you'll get and answers.
 
 For example, consider such simple session:
-	> 2 + 2
-	4
+
+    > 2 + 2
+    4
 
 (More examples to come.)
