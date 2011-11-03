@@ -18,13 +18,13 @@ module VoiceOfTantalum.Program
     let RegisterUnaryOperator symbol priority =
         expressionParser.AddOperator
         <| PrefixOperator (symbol, spaces, priority, false,
-                           fun a -> Function ({Id = symbol; Arity = 1}, [|a|]))
+                           fun a -> Function ({Id = symbol; Arity = 1}, [a]))
 
     /// Registers binary operator for use in input stream.
     let RegisterBinaryOperator symbol priority associativity =
         expressionParser.AddOperator
         <| InfixOperator (symbol, spaces, priority, associativity,
-                          fun a b -> Function ({Id = symbol; Arity = 2}, [|a; b|]))
+                          fun a b -> Function ({Id = symbol; Arity = 2}, [a; b]))
 
     RegisterUnaryOperator "+" 1
     RegisterUnaryOperator "-" 1
@@ -52,9 +52,16 @@ module VoiceOfTantalum.Program
     executor.AddBinaryFunction {Id = "/"; Arity = 2} <| fun (a, b) -> a / b
     executor.AddBinaryFunction {Id = "^"; Arity = 2} <| Math.Pow
 
+    // + a = a
     executor.AddSimplificationPattern {
         Left = (Function ({Id = "+"; Arity = 1}, [Template (Variable "a")]));
         Right = (Template (Variable "a"))
+    }
+
+    // a * 0 = 0
+    executor.AddSimplificationPattern {
+        Left = (Function ({Id = "*"; Arity = 2}, [Template Anything; Template Zero]));
+        Right = Constant (Symbolic (Symbol "0"))
     }
 
     let private repl =
@@ -63,7 +70,7 @@ module VoiceOfTantalum.Program
             let input = Console.ReadLine ()
             let result = 
                 try
-                    let operation = Parse input |> executor.CalculateSymbolic |> snd
+                    let operation = Parse input |> executor.CalculateSymbolic
                     let output = executor.CalculateBinary operation
                     sprintf "%A = %Ab" operation output
                 with
