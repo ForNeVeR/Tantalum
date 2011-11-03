@@ -58,31 +58,42 @@
                 | Function (f, args)        -> Function (f, Seq.map (fun pat -> patternReplace pat variables) args)
                 | _                         -> failwith "Invalid or unmatched pattern."
 
-        let patternMatch pattern expression =
+        let rec patternMatch pattern expression =
             let variables = new Dictionary<string, ExecutionTree> ()
-            match (pattern.Left, expression) with
-            | (p,                       e) when p = e     -> (true, patternReplace pattern.Right variables)
-            | (Template Anything,       _)                -> (true, patternReplace pattern.Right variables)
+            match (pattern, expression) with
+            | (p,                       e) when p = e     -> (true, variables)
+            | (Template Anything,       _)                -> (true, variables)
             | (Template (Variable var), e)                ->
-                variables.[var] <- e
-                (true, patternReplace pattern.Right variables)
+                if variables.ContainsKey var
+                then
+                    match variables.[var] with
+                    | expr when expr = e -> (true, variables)
+                    | _                  -> (false, variables)
+                else
+                    variables.[var] <- e
+                    (true, variables)
             | (Template Zero,           e)
-                when e = Constant (Symbolic (Symbol "0")) -> (true, e)
+                when e = Constant (Symbolic (Symbol "0")) -> (true, variables)
             | (Template One,            e)
-                when e = Constant (Symbolic (Symbol "1")) -> (true, e)
+                when e = Constant (Symbolic (Symbol "1")) -> (true, variables)
             | (Function (f1, patternArgs),
                 Function (f2, funcArgs)) when f1 = f2     ->
-                    let results = Seq.map executor.CalculateSymbolic funcArgs
+                    let results = Seq.map2 patternMatch patternArgs funcArgs
                     if Seq.forall (fun res -> fst res) results
-                    then (true, Function (f1, results |> Seq.map snd))
-                    else (false, Function (f1, funcArgs))
-            | (_,                       _)                -> (false, expression)
+                    then
+                        results
+                        |> Seq.map snd
+                        // TODO: Check whether variables dict haven't variables.[v.Key] set already.
+                        |> Seq.iter (fun var -> var |> Seq.iter (fun v -> variables.[v.Key] <- v.Value))
+                        (true, variables)
+                    else (false, variables)
+            | (_,                       _)                -> (false, variables)
 
-        member matcher.Match expression =
-            let result = 
+        member matcher.Match expression : ExecutionTree =
+            let result =
                 patterns
-                |> Seq.map (fun p -> patternMatch p expression)
-                |> Seq.tryFind (fun res -> fst res)
+                |> Seq.map (fun pattern -> (patternMatch pattern.Left expression, pattern.Right))
+                |> Seq.tryFind (fun res -> fst <| fst res)
             match result with
-            | Some e -> e
-            | None   -> (false, expression)
+            | Some value -> patternReplace (snd value) (snd <| fst value)
+            | None       -> expression
