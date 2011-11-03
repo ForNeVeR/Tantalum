@@ -6,3 +6,11 @@
             Double.Parse s
 
         override symbol.ToString () = s
+
+        override symbol.Equals obj =
+            match obj with
+            | :? Symbol as symbol2  -> s = symbol2.ToString ()
+            | _                     -> false
+
+        override symbol.GetHashCode () =
+            s.GetHashCode ()
