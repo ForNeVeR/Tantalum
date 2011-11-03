@@ -52,6 +52,11 @@ module VoiceOfTantalum.Program
     executor.AddBinaryFunction {Id = "/"; Arity = 2} <| fun (a, b) -> a / b
     executor.AddBinaryFunction {Id = "^"; Arity = 2} <| Math.Pow
 
+    executor.AddSimplificationPattern {
+        Left = (Function ({Id = "+"; Arity = 1}, [Template (Variable "a")]));
+        Right = (Template (Variable "a"))
+    }
+
     let private repl =
         while true do
             Console.Write "> "
