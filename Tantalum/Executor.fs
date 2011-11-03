@@ -35,37 +35,9 @@
         member executor.AddNormalizationPattern (pattern : Pattern) = ()
 
         member executor.CalculateSymbolic (expression: ExecutionTree) =
-            // TODO: A crap! Rewrite this!
-            let rec patternReplace pattern (variables : IDictionary<string, ExecutionTree>) =
-                match pattern with
-                | (Template (Variable var)) -> variables.[var]
-                | Constant _ as c           -> c
-                | Function (f, args)        -> Function (f, Seq.map (fun pat -> patternReplace pat variables) args)
-                | _                         -> failwith "Invalid or unmatched pattern."
-            
-            let rec applyPattern (pattern : Pattern) expression variables =
-                match (pattern.Left, expression) with
-                | (p,                       e) when p = e -> (true, patternReplace pattern.Right variables)
-                | (Template Anything,       _)            -> (true, patternReplace pattern.Right variables)
-                | (Template (Variable var), e)            ->
-                    variables.[var] <- e
-                    (true, patternReplace pattern.Right variables)
-                | (Function (f1, patternArgs),
-                    Function (f2, funcArgs)) when f1 = f2 ->
-                        let results = Seq.map executor.CalculateSymbolic funcArgs
-                        if Seq.forall (fun res -> fst res) results
-                        then (true, Function (f1, results |> Seq.map snd))
-                        else (false, Function (f1, funcArgs))
-                | (_,                       _)            -> (false, expression)
-            
-            let result = 
-                simplificationPatterns
-                |> Seq.map (fun p -> applyPattern p expression (new Dictionary<string, ExecutionTree> ()))
-                |> Seq.tryFind (fun res -> fst res)
-            match result with
-            | Some e -> e
-            | None   -> (false, expression)
-            
+            let matcher = new PatternMatcher (executor, simplificationPatterns)
+            matcher.Match expression
+           
         member executor.CalculateBinary (expression: ExecutionTree) =
             match expression with
             | Constant (Double d)               -> d
@@ -78,3 +50,39 @@
                     |> apply 
             | Function _                        -> failwith "Wrong number of arguments."
             | Template _                        -> failwith "Attempt to calculate template expression."
+    and PatternMatcher (executor : Executor, patterns : Pattern seq) =
+        let rec patternReplace pattern (variables : IDictionary<string, ExecutionTree>) =
+                match pattern with
+                | (Template (Variable var)) -> variables.[var]
+                | Constant _ as c           -> c
+                | Function (f, args)        -> Function (f, Seq.map (fun pat -> patternReplace pat variables) args)
+                | _                         -> failwith "Invalid or unmatched pattern."
+
+        let patternMatch pattern expression =
+            let variables = new Dictionary<string, ExecutionTree> ()
+            match (pattern.Left, expression) with
+            | (p,                       e) when p = e     -> (true, patternReplace pattern.Right variables)
+            | (Template Anything,       _)                -> (true, patternReplace pattern.Right variables)
+            | (Template (Variable var), e)                ->
+                variables.[var] <- e
+                (true, patternReplace pattern.Right variables)
+            | (Template Zero,           e)
+                when e = Constant (Symbolic (Symbol "0")) -> (true, e)
+            | (Template One,            e)
+                when e = Constant (Symbolic (Symbol "1")) -> (true, e)
+            | (Function (f1, patternArgs),
+                Function (f2, funcArgs)) when f1 = f2     ->
+                    let results = Seq.map executor.CalculateSymbolic funcArgs
+                    if Seq.forall (fun res -> fst res) results
+                    then (true, Function (f1, results |> Seq.map snd))
+                    else (false, Function (f1, funcArgs))
+            | (_,                       _)                -> (false, expression)
+
+        member matcher.Match expression =
+            let result = 
+                patterns
+                |> Seq.map (fun p -> patternMatch p expression)
+                |> Seq.tryFind (fun res -> fst res)
+            match result with
+            | Some e -> e
+            | None   -> (false, expression)
