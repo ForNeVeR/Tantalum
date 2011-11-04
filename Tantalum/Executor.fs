@@ -29,7 +29,7 @@ type Executor () =
     let functions = new Dictionary<Function, Functor> ()
     let simplificationPatterns = new HashSet<Pattern> ()
 
-    member executor.AddUnaryFunction (func : Function) (applyFunctor : double -> double) =
+    member executor.AddUnaryFunction (func : Function) (applyFunctor : double -> double) : unit =
         if func.Arity = 1
         then
             functions.[func] <-
@@ -39,7 +39,7 @@ type Executor () =
                     | _     -> failwith "Wrong number of arguments for unary function."
         else failwith "Wrong unary function definition."
 
-    member executor.AddBinaryFunction (func : Function) (applyFunctor : double * double -> double) =
+    member executor.AddBinaryFunction (func : Function) (applyFunctor : double * double -> double) : unit =
         if func.Arity = 2
         then
             functions.[func] <-
@@ -49,17 +49,18 @@ type Executor () =
                     | _            -> failwith "Wrong number of arguments for binary function."
         else failwith "Wrong binary function definition."
 
-    member executor.AddSimplificationPattern (pattern : Pattern) = 
-        simplificationPatterns.Add pattern |> ignore
+    member executor.AddSimplificationPattern (pattern : Pattern) : unit = 
+        simplificationPatterns.Add pattern
+        |> ignore
+
+    member executor.AddNormalizationPattern (pattern : Pattern) : unit =
         ()
 
-    member executor.AddNormalizationPattern (pattern : Pattern) = ()
-
-    member executor.CalculateSymbolic (expression: ExecutionTree) =
+    member executor.CalculateSymbolic (expression: ExecutionTree) : ExecutionTree =
         let matcher = new PatternMatcher (executor, simplificationPatterns)
         matcher.Match expression
            
-    member executor.CalculateBinary (expression: ExecutionTree) =
+    member executor.CalculateBinary (expression: ExecutionTree) : double =
         match expression with
         | Constant (Double d)               -> d
         | Constant (Symbolic s)             -> s.ToBinary ()
@@ -71,6 +72,7 @@ type Executor () =
                 |> apply 
         | Function _                        -> failwith "Wrong number of arguments."
         | Template _                        -> failwith "Attempt to calculate template expression."
+
 and PatternMatcher (executor : Executor, patterns : Pattern seq) =
     let rec patternReplace pattern (variables : IDictionary<string, ExecutionTree>) =
             match pattern with
@@ -110,7 +112,7 @@ and PatternMatcher (executor : Executor, patterns : Pattern seq) =
                 else (false, variables)
         | (_,                       _)                -> (false, variables)
 
-    member matcher.Match expression : ExecutionTree =
+    member matcher.Match (expression : ExecutionTree) : ExecutionTree =
         let result =
             patterns
             |> Seq.map (fun pattern -> (patternMatch pattern.Left expression, pattern.Right))

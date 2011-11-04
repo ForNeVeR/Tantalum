@@ -26,12 +26,13 @@ type Symbol (s : string) =
     member symbol.ToBinary () : double =
         Double.Parse s
 
-    override symbol.ToString () = s
+    override symbol.ToString () : string =
+        s
 
-    override symbol.Equals obj =
+    override symbol.Equals (obj : obj) : bool =
         match obj with
         | :? Symbol as symbol2  -> s = symbol2.ToString ()
         | _                     -> false
 
-    override symbol.GetHashCode () =
+    override symbol.GetHashCode () : int =
         s.GetHashCode ()

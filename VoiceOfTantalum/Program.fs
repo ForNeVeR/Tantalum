@@ -36,13 +36,13 @@ expressionParser.TermParser <-
     <|> between (pstring "(") (pstring ")") expression
 
 /// Registers prefix unary operator for use in input stream.
-let RegisterUnaryOperator symbol priority =
+let RegisterUnaryOperator (symbol : string) (priority : int) : unit =
     expressionParser.AddOperator
     <| PrefixOperator (symbol, spaces, priority, false,
                         fun a -> Function ({Id = symbol; Arity = 1}, [a]))
 
 /// Registers binary operator for use in input stream.
-let RegisterBinaryOperator symbol priority associativity =
+let RegisterBinaryOperator (symbol : string) (priority : int) (associativity : Associativity) =
     expressionParser.AddOperator
     <| InfixOperator (symbol, spaces, priority, associativity,
                         fun a b -> Function ({Id = symbol; Arity = 2}, [a; b]))
@@ -56,13 +56,13 @@ RegisterBinaryOperator "*" 2 Associativity.Left
 RegisterBinaryOperator "/" 2 Associativity.Left
 RegisterBinaryOperator "^" 3 Associativity.Right
 
-/// Parses message and returns corresponding Expression.
-let Parse message =
-    match run expression message with
+/// Parses input string and returns corresponding Expression.
+let Parse (input : string) : ExecutionTree =
+    match run expression input with
     | Success (result, _, _) -> result
     | Failure (msg, err, _)  -> failwith msg
 
-let executor = new Executor ()
+let private executor = new Executor ()
 
 executor.AddUnaryFunction {Id = "+"; Arity = 1} <| fun a -> a
 executor.AddUnaryFunction {Id = "-"; Arity = 1} <| fun a -> -a
