@@ -19,18 +19,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. *)
 
 namespace Tantalum
-    open System
 
-    type Symbol (s : string) = 
-        member symbol.ToBinary () : double =
-            Double.Parse s
+open System
 
-        override symbol.ToString () = s
+type Symbol (s : string) = 
+    member symbol.ToBinary () : double =
+        Double.Parse s
 
-        override symbol.Equals obj =
-            match obj with
-            | :? Symbol as symbol2  -> s = symbol2.ToString ()
-            | _                     -> false
+    override symbol.ToString () = s
 
-        override symbol.GetHashCode () =
-            s.GetHashCode ()
+    override symbol.Equals obj =
+        match obj with
+        | :? Symbol as symbol2  -> s = symbol2.ToString ()
+        | _                     -> false
+
+    override symbol.GetHashCode () =
+        s.GetHashCode ()

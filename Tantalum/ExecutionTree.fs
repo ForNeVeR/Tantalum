@@ -19,7 +19,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. *)
 
 namespace Tantalum
-    type ExecutionTree =
-        | Function of Function * ExecutionTree seq
-        | Constant of Constant
-        | Template of Template
+
+type ExecutionTree =
+    | Function of Function * ExecutionTree seq
+    | Constant of Constant
+    | Template of Template

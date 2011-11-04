@@ -19,8 +19,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. *)
 
 namespace Tantalum
-    type Template =
-    | Variable of string
-    | Anything
-    | Zero
-    | One
+
+type Template =
+| Variable of string
+| Anything
+| Zero
+| One

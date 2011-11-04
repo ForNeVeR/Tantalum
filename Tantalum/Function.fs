@@ -19,8 +19,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. *)
 
 namespace Tantalum
-    type Function =
-        {
-            Id : string;
-            Arity : int
-        }
+
+type Function =
+    {
+        Id : string;
+        Arity : int
+    }
