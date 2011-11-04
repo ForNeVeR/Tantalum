@@ -73,17 +73,17 @@ executor.AddBinaryFunction {Id = "*"; Arity = 2} <| fun (a, b) -> a * b
 executor.AddBinaryFunction {Id = "/"; Arity = 2} <| fun (a, b) -> a / b
 executor.AddBinaryFunction {Id = "^"; Arity = 2} <| Math.Pow
 
-// + a = a
-executor.AddSimplificationPattern {
-    Left = (Function ({Id = "+"; Arity = 1}, [Template (Variable "a")]));
-    Right = (Template (Variable "a"))
-}
+let private simplificationPatterns = [
+    // + a = a
+    {Left = (Function ({Id = "+"; Arity = 1}, [Template (Variable "a")]));
+    Right = (Template (Variable "a"))};
+    // a * 0 = 0
+    {Left = (Function ({Id = "*"; Arity = 2}, [Template Anything; Template Zero]));
+    Right = Constant (Symbolic (Symbol "0"))}
+]
 
-// a * 0 = 0
-executor.AddSimplificationPattern {
-    Left = (Function ({Id = "*"; Arity = 2}, [Template Anything; Template Zero]));
-    Right = Constant (Symbolic (Symbol "0"))
-}
+simplificationPatterns
+|> List.iter executor.AddSimplificationPattern
 
 let private repl =
     while true do
