@@ -28,7 +28,7 @@ open Tantalum
 let private expressionParser = new OperatorPrecedenceParser<ExecutionTree, unit, unit> ()
 let private expression = expressionParser.ExpressionParser
 let private number =
-    regex @"[+-]?[\d]+(\.[\d]+)?([eE][+-]?[\d]+(\.[\d]+)?)?"
+    regex @"[\d]+(\.[\d]+)?([eE][+-]?[\d]+(\.[\d]+)?)?"
     |>> fun s -> Constant (Symbolic <| Symbol s)
 
 expressionParser.TermParser <-
