@@ -33,4 +33,5 @@ calculation result, as opposed to its symbolic representation.
 3rd-party libraries
 -------------------
 Tantalum uses following 3-rd party libraries:
+
 * FParsec by Stephan Tolksdorf [http://www.quanttec.com/fparsec/]
