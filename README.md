@@ -24,7 +24,7 @@ and you'll get the answers.
 
 For example, consider such simple session:
 
-    > 2 + 2 * 0
+    > 2+2*0
     (2 + (2 * 0)) = (2 + 0) = 2b
 
 Here you can see the original form of expression `(2 + (2 * 0))`, its
