@@ -24,8 +24,11 @@ and you'll get the answers.
 
 For example, consider such simple session:
 
-    > 2 + 2
-    ... = 4.0b
+    > 2 + 2 * 0
+    (2 + (2 * 0)) = (2 + 0) = 2.0b
+
+Here you can see the original form of expression `(2 + (2 * 0))`, its
+simplified form `(2 + 0)` and the result `2.0b`.
 
 Note that `b` letter stands for so called "binary" representation of
 calculation result, as opposed to its symbolic representation.
