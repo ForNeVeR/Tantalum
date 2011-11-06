@@ -22,50 +22,71 @@ namespace Tantalum
 
 open System.Collections.Generic
 
-type PatternMatcher (executor : IExecutor, patterns : Pattern seq) =
-    let rec patternReplace pattern (variables : IDictionary<string, ExecutionTree>) =
-            match pattern with
-            | (Template (Variable var)) -> variables.[var]
-            | Constant _ as c           -> c
-            | Function (f, args)        -> Function (f, Seq.map (fun pat -> patternReplace pat variables) args)
-            | _                         -> failwith "Invalid or unmatched pattern."
+type private VariableDict = Dictionary<string, ExecutionTree>
 
-    let rec patternMatch pattern expression =
-        let variables = new Dictionary<string, ExecutionTree> ()
+type PatternMatcher (patterns : Pattern seq) =
+    let rec patternReplace pattern (variables : VariableDict) =
+        match pattern with
+        | (Template (Variable var)) -> variables.[var]
+        | Constant _ as c           -> c
+        | Function (f, args)        -> Function (f, Seq.map (fun pat -> patternReplace pat variables) args)
+        | _                         -> failwith "Invalid or unmatched pattern."
+
+    let rec mapVariables (pattern : ExecutionTree) (expression : ExecutionTree) (variables : VariableDict) : unit =
         match (pattern, expression) with
-        | (p,                       e) when p = e     -> (true, variables)
-        | (Template Anything,       _)                -> (true, variables)
-        | (Template (Variable var), e)                ->
-            if variables.ContainsKey var
-            then
-                match variables.[var] with
-                | expr when expr = e -> (true, variables)
-                | _                  -> (false, variables)
-            else
-                variables.[var] <- e
-                (true, variables)
+        | (Template (Variable name), expr)                 -> variables.Add (name, expr)
+        | (Function (_, args1),       Function (_, args2)) ->
+            Seq.iter2 (fun pat arg -> mapVariables pat arg variables) args1 args2
+        | _                                                -> () 
+
+    let rec straightMatch (pattern : ExecutionTree) (expression : ExecutionTree) : bool =
+        match (pattern, expression) with
+        | (p,                       e) when p = e     -> true
+        | (Template Anything,       _)                -> true
+        | (Template (Variable var), _)                -> true
         | (Template Zero,           e)
-            when e = Constant (Symbolic (Symbol "0")) -> (true, variables)
+            when e = Constant (Symbolic (Symbol "0")) -> true
         | (Template One,            e)
-            when e = Constant (Symbolic (Symbol "1")) -> (true, variables)
-        | (Function (f1, patternArgs),
-            Function (f2, funcArgs)) when f1 = f2     ->
-                let results = Seq.map2 patternMatch patternArgs funcArgs
-                if Seq.forall (fun res -> fst res) results
-                then
-                    results
-                    |> Seq.map snd
-                    // TODO: Check whether variables dict haven't variables.[v.Key] set already.
-                    |> Seq.iter (fun var -> var |> Seq.iter (fun v -> variables.[v.Key] <- v.Value))
-                    (true, variables)
-                else (false, variables)
-        | (_,                       _)                -> (false, variables)
+            when e = Constant (Symbolic (Symbol "1")) -> true
+        | (Function (func1, args1), Function (func2, args2))
+            when func1 = func2                        ->
+            Seq.map2 straightMatch args1 args2
+            |> Seq.forall (fun b -> b)
+        | _                                           -> false
+
+    let rec deepMatchAny (expression : ExecutionTree) : ExecutionTree option =
+        let matchedPattern = 
+            patterns
+            |> Seq.map (fun pattern -> (pattern, straightMatch pattern.Left expression))
+            |> Seq.tryFind snd
+
+        match matchedPattern with
+        | Some (pattern, _) ->
+            let variables = new VariableDict ()
+            mapVariables pattern.Right expression variables
+            Some (patternReplace pattern.Right variables)
+        | None              ->
+            match expression with
+            | Function (f, args) ->
+                let results = Seq.map (fun arg -> (arg, deepMatchAny arg)) args
+                if Seq.exists (snd >> Option.isSome) results then
+                    Some (Function (f, results |> Seq.map (fun result ->
+                        match result with
+                        | (_,   Some res) -> res
+                        | (arg, None)     -> arg)))
+                else
+                    None                
+            | _                  -> None
 
     member matcher.Match (expression : ExecutionTree) : ExecutionTree =
-        let result =
-            patterns
-            |> Seq.map (fun pattern -> (patternMatch pattern.Left expression, pattern.Right))
-            |> Seq.tryFind (fun res -> fst <| fst res)
-        match result with
-        | Some value -> patternReplace (snd value) (snd <| fst value)
-        | None       -> expression
+        let mutable proceed = true
+        let mutable currentExpression = expression
+        while proceed do
+            match deepMatchAny currentExpression with
+            | Some newExpression ->
+                currentExpression <- newExpression
+                proceed <- true
+            | None ->
+                proceed <- false
+        currentExpression
+        

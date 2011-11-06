@@ -62,7 +62,7 @@ let Parse (input : string) : ExecutionTree =
     | Success (result, _, _) -> result
     | Failure (msg, err, _)  -> failwith msg
 
-let private executor = (new Executor () :> IExecutor)
+let private executor = new Executor ()
 
 executor.AddUnaryFunction {Id = "+"; Arity = 1} <| fun a -> a
 executor.AddUnaryFunction {Id = "-"; Arity = 1} <| fun a -> -a
@@ -91,9 +91,10 @@ let private repl =
         let input = Console.ReadLine ()
         let result = 
             try
-                let operation = Parse input |> executor.CalculateSymbolic
-                let output = executor.CalculateBinary operation
-                sprintf "%A = %Ab" operation output
+                let inputExpr = Parse input
+                let optimizedExpr = executor.CalculateSymbolic inputExpr
+                let output = executor.CalculateBinary optimizedExpr
+                sprintf "%A = %A = %Ab"  inputExpr optimizedExpr output
             with
                 | error -> error.Message
         printfn "%s" result
