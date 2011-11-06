@@ -62,7 +62,7 @@ let Parse (input : string) : ExecutionTree =
     | Success (result, _, _) -> result
     | Failure (msg, err, _)  -> failwith msg
 
-let private executor = new Executor ()
+let private executor = (new Executor () :> IExecutor)
 
 executor.AddUnaryFunction {Id = "+"; Arity = 1} <| fun a -> a
 executor.AddUnaryFunction {Id = "-"; Arity = 1} <| fun a -> -a

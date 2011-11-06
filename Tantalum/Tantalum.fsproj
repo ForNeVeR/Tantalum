@@ -43,6 +43,8 @@
     <Compile Include="Template.fs" />
     <Compile Include="ExecutionTree.fs" />
     <Compile Include="Pattern.fs" />
+    <Compile Include="IExecutor.fs" />
+    <Compile Include="PatternMatcher.fs" />
     <Compile Include="Executor.fs" />
   </ItemGroup>
   <ItemGroup>
