@@ -94,7 +94,7 @@ let private repl =
                 let inputExpr = Parse input
                 let optimizedExpr = executor.CalculateSymbolic inputExpr
                 let output = executor.CalculateBinary optimizedExpr
-                sprintf "%A = %A = %Ab"  inputExpr optimizedExpr output
+                sprintf "%s = %s = %sb" (inputExpr.ToString ()) (optimizedExpr.ToString ()) (output.ToString ())
             with
                 | error -> error.Message
         printfn "%s" result

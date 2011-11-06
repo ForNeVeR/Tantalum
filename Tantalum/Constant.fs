@@ -21,5 +21,10 @@ THE SOFTWARE. *)
 namespace Tantalum
 
 type Constant =
-| Double of double
-| Symbolic of Symbol
+    | Double of double
+    | Symbolic of Symbol
+
+    override constant.ToString () : string =
+        match constant with
+        | Double d   -> sprintf "%fb" d
+        | Symbolic s -> sprintf "%s" (s.ToString ())

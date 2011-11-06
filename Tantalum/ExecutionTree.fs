@@ -24,3 +24,19 @@ type ExecutionTree =
     | Function of Function * ExecutionTree seq
     | Constant of Constant
     | Template of Template
+
+    override tree.ToString () : string =
+        match tree with
+        | Constant c -> c.ToString ()
+        | Function (f, args) ->
+            match f.Arity with
+            | 2 ->
+                let arg1 = Seq.nth 0 args
+                let arg2 = Seq.nth 1 args
+                sprintf "(%s %s %s)" (arg1.ToString ()) f.Id (arg2.ToString ())
+            | _ -> 
+                let buffer = ref (sprintf "%s " f.Id)
+                args
+                |> Seq.iter (fun arg -> buffer := sprintf "%s %s" !buffer (arg.ToString ()))
+                !buffer
+        | Template _ -> "Template"
