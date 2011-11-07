@@ -25,6 +25,9 @@ open System.Collections.Generic
 type private VariableDict = Dictionary<string, ExecutionTree>
 
 type PatternMatcher (patterns : Pattern seq) =
+    let zero expression = expression = Constant (Symbolic (Symbol "0"))
+    let one expression = expression = Constant (Symbolic (Symbol "1"))
+
     let rec patternReplace pattern (variables : VariableDict) =
         match pattern with
         | (Template (Variable var)) -> variables.[var]
@@ -49,10 +52,8 @@ type PatternMatcher (patterns : Pattern seq) =
         | (p,                       e) when p = e     -> true
         | (Template Anything,       _)                -> true
         | (Template (Variable var), _)                -> true
-        | (Template Zero,           e)
-            when e = Constant (Symbolic (Symbol "0")) -> true
-        | (Template One,            e)
-            when e = Constant (Symbolic (Symbol "1")) -> true
+        | (Template Zero,           e) when zero e    -> true
+        | (Template One,            e) when one e     -> true
         | (Function (func1, args1), Function (func2, args2))
             when func1 = func2                        ->
             Seq.map2 straightMatch args1 args2
