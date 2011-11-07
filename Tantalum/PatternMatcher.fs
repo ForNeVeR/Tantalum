@@ -79,14 +79,6 @@ type PatternMatcher (patterns : Pattern seq) =
             | _                  -> None
 
     member matcher.Match (expression : ExecutionTree) : ExecutionTree =
-        let mutable proceed = true
-        let mutable currentExpression = expression
-        while proceed do
-            match deepMatchAny currentExpression with
-            | Some newExpression ->
-                currentExpression <- newExpression
-                proceed <- true
-            | None ->
-                proceed <- false
-        currentExpression
-        
+        match deepMatchAny expression with
+        | Some newExpression -> matcher.Match newExpression
+        | None -> expression
