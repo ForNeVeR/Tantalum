@@ -34,10 +34,15 @@ type PatternMatcher (patterns : Pattern seq) =
 
     let rec mapVariables (pattern : ExecutionTree) (expression : ExecutionTree) (variables : VariableDict) : unit =
         match (pattern, expression) with
-        | (Template (Variable name), expr)                 -> variables.Add (name, expr)
-        | (Function (_, args1),       Function (_, args2)) ->
+        | (Template (Variable name), expr) ->
+            match variables.TryGetValue name with
+            | (false, _)                      -> variables.[name] <- expr
+            | (true, value) when value = expr -> ()
+            | _                               -> failwithf "Cannot redefine variable %s." name                 
+        | (Function (f1, args1),     Function (f2, args2))
+            when f1 = f2                   ->
             Seq.iter2 (fun pat arg -> mapVariables pat arg variables) args1 args2
-        | _                                                -> () 
+        | _                                -> () 
 
     let rec straightMatch (pattern : ExecutionTree) (expression : ExecutionTree) : bool =
         match (pattern, expression) with
@@ -63,7 +68,7 @@ type PatternMatcher (patterns : Pattern seq) =
         match matchedPattern with
         | Some (pattern, _) ->
             let variables = new VariableDict ()
-            mapVariables pattern.Right expression variables
+            mapVariables pattern.Left expression variables
             Some (patternReplace pattern.Right variables)
         | None              ->
             match expression with
