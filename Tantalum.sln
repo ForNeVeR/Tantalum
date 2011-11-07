@@ -8,7 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "VoiceOfTantalum", "VoiceOfTantalum\VoiceOfTantalum.fsproj", "{11E9305C-10CE-48B0-958A-92EE8DC86465}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Voice", "VoiceOfTantalum\Voice.fsproj", "{11E9305C-10CE-48B0-958A-92EE8DC86465}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

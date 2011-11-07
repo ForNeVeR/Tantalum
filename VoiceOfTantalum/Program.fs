@@ -19,7 +19,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. *)
 
 /// Tantalum command line input module.
-module VoiceOfTantalum.Program
+module Tantalum.Voice
 
 open System
 open FParsec
