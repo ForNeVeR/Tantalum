@@ -75,10 +75,19 @@ executor.AddBinaryFunction {Id = "^"; Arity = 2} <| Math.Pow
 
 let private simplificationPatterns = [
     // + a = a
-    {Left = (Function ({Id = "+"; Arity = 1}, [Template (Variable "a")]));
+    {Left = (Function ({Id = "+"; Arity = 1},
+                       [Template (Variable "a")]));
     Right = (Template (Variable "a"))};
+
+    // - (- a) = a
+    {Left = (Function ({Id = "-"; Arity = 1},
+                        [(Function ({Id = "-"; Arity = 1},
+                                    [Template (Variable "a")]))]));
+    Right = (Template (Variable "a"))};
+
     // a * 0 = 0
-    {Left = (Function ({Id = "*"; Arity = 2}, [Template Anything; Template Zero]));
+    {Left = (Function ({Id = "*"; Arity = 2},
+                       [Template Anything; Template Zero]));
     Right = Constant (Symbolic (Symbol "0"))}
 ]
 
