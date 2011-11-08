@@ -25,10 +25,7 @@ open System.Collections.Generic
 type private VariableDict = Dictionary<string, ExecutionTree>
 
 /// Type for doing pattern matching on expression.
-type PatternMatcher (patterns : Pattern seq) =
-    let zero expression = expression = Constant (Symbolic (Symbol "0"))
-    let one expression = expression = Constant (Symbolic (Symbol "1"))
-
+type PatternMatcher (executor: IExecutor, patterns : Pattern seq) =
     let rec patternReplace pattern (variables : VariableDict) =
         match pattern with
         | (Template (Variable var)) -> variables.[var]
@@ -50,16 +47,14 @@ type PatternMatcher (patterns : Pattern seq) =
 
     let rec straightMatch (pattern : ExecutionTree) (expression : ExecutionTree) : bool =
         match (pattern, expression) with
-        | (p,                       e) when p = e     -> true
-        | (Template Anything,       _)                -> true
-        | (Template (Variable var), _)                -> true
-        | (Template Zero,           e) when zero e    -> true
-        | (Template One,            e) when one e     -> true
+        | (Constant _ as c,         e) when executor.CalculateSymbolic e = c -> true
+        | (Template Anything,       _) -> true
+        | (Template (Variable var), _) -> true
         | (Function (func1, args1), Function (func2, args2))
-            when func1 = func2                        ->
+            when func1 = func2         ->
             List.map2 straightMatch args1 args2
             |> List.forall (fun b -> b)
-        | _                                           -> false
+        | _                            -> false
 
     let rec deepMatchAny (expression : ExecutionTree) : ExecutionTree option =
         let matchedPattern = 

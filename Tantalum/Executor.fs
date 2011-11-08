@@ -65,7 +65,7 @@ let executor () =
 
         /// Simplifies an expression.
         member executor.CalculateSymbolic (expression: ExecutionTree) : ExecutionTree =
-            let matcher = new PatternMatcher (simplificationPatterns)
+            let matcher = new PatternMatcher (executor, simplificationPatterns)
             matcher.Match expression
 
         /// Calculates expression in binary.

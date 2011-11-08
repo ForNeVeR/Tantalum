@@ -88,7 +88,7 @@ let private simplificationPatterns = [
 
     // a * 0 = 0
     {Left = (Function ({Id = "*"; Arity = 2},
-                       [Template Anything; Template Zero]));
+                       [Template Anything; Constant <| Symbolic (new Symbol ("0"))]));
     Right = Constant (Symbolic (Symbol "0"))}
 ]
 
