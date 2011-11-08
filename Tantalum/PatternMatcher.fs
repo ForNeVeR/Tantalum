@@ -25,7 +25,7 @@ open System.Collections.Generic
 type private VariableDict = Dictionary<string, ExecutionTree>
 
 /// Type for doing pattern matching on expression.
-type PatternMatcher (executor: IExecutor, patterns : Pattern seq) =
+type PatternMatcher (executor: IExecutor, simplificationPatterns : Pattern seq, normalizationPatterns : Pattern seq) =
     let rec patternReplace pattern (variables : VariableDict) =
         match pattern with
         | (Template (Variable var)) -> variables.[var]
@@ -33,7 +33,7 @@ type PatternMatcher (executor: IExecutor, patterns : Pattern seq) =
         | Function (f, args)        -> Function (f, List.map (fun pat -> patternReplace pat variables) args)
         | _                         -> failwith "Invalid or unmatched pattern."
 
-    let rec mapVariables (pattern : ExecutionTree) (expression : ExecutionTree) (variables : VariableDict) : unit =
+    let rec mapVariables pattern expression (variables : VariableDict) : unit =
         match (pattern, expression) with
         | (Template (Variable name), expr) ->
             match variables.TryGetValue name with
@@ -45,7 +45,7 @@ type PatternMatcher (executor: IExecutor, patterns : Pattern seq) =
             List.iter2 (fun pat arg -> mapVariables pat arg variables) args1 args2
         | _                                -> () 
 
-    let rec straightMatch (pattern : ExecutionTree) (expression : ExecutionTree) : bool =
+    let rec straightMatch pattern expression : bool =
         match (pattern, expression) with
         | (Constant _ as c,         e) when executor.CalculateSymbolic e = c -> true
         | (Template Anything,       _) -> true
@@ -56,7 +56,7 @@ type PatternMatcher (executor: IExecutor, patterns : Pattern seq) =
             |> List.forall (fun b -> b)
         | _                            -> false
 
-    let rec deepMatchAny (expression : ExecutionTree) : ExecutionTree option =
+    let rec deepMatchAny patterns expression : ExecutionTree option =
         let matchedPattern = 
             patterns
             |> Seq.map (fun pattern -> (pattern, straightMatch pattern.Left expression))
@@ -70,7 +70,7 @@ type PatternMatcher (executor: IExecutor, patterns : Pattern seq) =
         | None              ->
             match expression with
             | Function (f, args) ->
-                let results = List.map (fun arg -> (arg, deepMatchAny arg)) args
+                let results = List.map (fun arg -> (arg, deepMatchAny patterns arg)) args
                 if List.exists (snd >> Option.isSome) results then
                     Some (Function (f, results |> List.map (fun result ->
                         match result with
@@ -82,6 +82,14 @@ type PatternMatcher (executor: IExecutor, patterns : Pattern seq) =
 
     /// Trying to match all available patterns on expression.
     member matcher.Match (expression : ExecutionTree) : ExecutionTree =
-        match deepMatchAny expression with
+        let simplify expr = deepMatchAny simplificationPatterns expr
+        let normalize expr = deepMatchAny normalizationPatterns expr
+        match simplify expression with
         | Some newExpression -> matcher.Match newExpression
-        | None -> expression
+        | None ->
+            match normalize expression with
+            | Some newExpression ->
+                 match simplify newExpression with
+                 | Some newestExpression -> matcher.Match newestExpression
+                 | None                  -> expression
+            | None               -> expression

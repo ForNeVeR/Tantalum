@@ -82,7 +82,7 @@ let private simplificationPatterns = [
 
     // - (- a) = a
     {Left = (Function ({Id = "-"; Arity = 1},
-                        [(Function ({Id = "-"; Arity = 1},
+                       [(Function ({Id = "-"; Arity = 1},
                                     [Template (Variable "a")]))]));
     Right = (Template (Variable "a"))};
 
@@ -92,8 +92,19 @@ let private simplificationPatterns = [
     Right = Constant (Symbolic (Symbol "0"))}
 ]
 
+let private normalizationPatterns = [
+    // a * b = b * a
+    {Left = (Function ({Id = "*"; Arity = 2},
+                       [Template (Variable "a"); Template (Variable "b")]));
+    Right = (Function ({Id = "*"; Arity = 2},
+                       [Template (Variable "b"); Template (Variable "a")]))}
+]
+
 simplificationPatterns
 |> List.iter executor.AddSimplificationPattern
+
+normalizationPatterns
+|> List.iter executor.AddNormalizationPattern
 
 let private repl =
     while true do

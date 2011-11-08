@@ -30,6 +30,7 @@ type Functor = double list -> double
 let executor () =
     let functions = new Dictionary<Function, Functor> ()
     let simplificationPatterns = new HashSet<Pattern> ()
+    let normalizationPatterns = new HashSet<Pattern> ()
 
     {new IExecutor with
         /// Adds unary function to internal storage.
@@ -61,11 +62,12 @@ let executor () =
 
         /// Adds normalization pattern to internal storage.
         member executor.AddNormalizationPattern (pattern : Pattern) : unit =
-            ()
+            normalizationPatterns.Add pattern
+            |> ignore
 
         /// Simplifies an expression.
         member executor.CalculateSymbolic (expression: ExecutionTree) : ExecutionTree =
-            let matcher = new PatternMatcher (executor, simplificationPatterns)
+            let matcher = new PatternMatcher (executor, simplificationPatterns, normalizationPatterns)
             matcher.Match expression
 
         /// Calculates expression in binary.
