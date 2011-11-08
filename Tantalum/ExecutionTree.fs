@@ -37,7 +37,7 @@ type ExecutionTree =
                 let arg2 = Seq.nth 1 args
                 sprintf "(%s %s %s)" (arg1.ToString ()) f.Id (arg2.ToString ())
             | _ -> 
-                let buffer = ref (sprintf "%s " f.Id)
+                let buffer = ref (sprintf "%s" f.Id)
                 args
                 |> List.iter (fun arg -> buffer := sprintf "%s %s" !buffer (arg.ToString ()))
                 !buffer
