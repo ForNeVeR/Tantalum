@@ -31,54 +31,55 @@ type Executor () =
     let functions = new Dictionary<Function, Functor> ()
     let simplificationPatterns = new HashSet<Pattern> ()
 
-    /// Adds unary function to internal storage.
-    member executor.AddUnaryFunction (func : Function) (applyFunctor : double -> double) : unit =
-        if func.Arity = 1
-        then
-            functions.[func] <-
-                fun args ->
-                    match args with
-                    | [arg] -> applyFunctor arg
-                    | _     -> failwith "Wrong number of arguments for unary function."
-        else failwith "Wrong unary function definition."
+    interface IExecutor with
+        /// Adds unary function to internal storage.
+        member executor.AddUnaryFunction (func : Function) (applyFunctor : double -> double) : unit =
+            if func.Arity = 1
+            then
+                functions.[func] <-
+                    fun args ->
+                        match args with
+                        | [arg] -> applyFunctor arg
+                        | _     -> failwith "Wrong number of arguments for unary function."
+            else failwith "Wrong unary function definition."
 
-    /// Adds binary function to internal storage.
-    member executor.AddBinaryFunction (func : Function) (applyFunctor : double * double -> double) : unit =
-        if func.Arity = 2
-        then
-            functions.[func] <-
-                fun args ->
-                    match args with
-                    | [arg1; arg2] -> applyFunctor (arg1, arg2)
-                    | _            -> failwith "Wrong number of arguments for binary function."
-        else failwith "Wrong binary function definition."
+        /// Adds binary function to internal storage.
+        member executor.AddBinaryFunction (func : Function) (applyFunctor : double * double -> double) : unit =
+            if func.Arity = 2
+            then
+                functions.[func] <-
+                    fun args ->
+                        match args with
+                        | [arg1; arg2] -> applyFunctor (arg1, arg2)
+                        | _            -> failwith "Wrong number of arguments for binary function."
+            else failwith "Wrong binary function definition."
 
-    /// Adds simplification pattern to internal storage.
-    member executor.AddSimplificationPattern (pattern : Pattern) : unit = 
-        simplificationPatterns.Add pattern
-        |> ignore
+        /// Adds simplification pattern to internal storage.
+        member executor.AddSimplificationPattern (pattern : Pattern) : unit = 
+            simplificationPatterns.Add pattern
+            |> ignore
 
-    /// Adds normalization pattern to internal storage.
-    member executor.AddNormalizationPattern (pattern : Pattern) : unit =
-        ()
+        /// Adds normalization pattern to internal storage.
+        member executor.AddNormalizationPattern (pattern : Pattern) : unit =
+            ()
 
-    /// Simplifies an expression.
-    member executor.CalculateSymbolic (expression: ExecutionTree) : ExecutionTree =
-        let matcher = new PatternMatcher (simplificationPatterns)
-        matcher.Match expression
+        /// Simplifies an expression.
+        member executor.CalculateSymbolic (expression: ExecutionTree) : ExecutionTree =
+            let matcher = new PatternMatcher (simplificationPatterns)
+            matcher.Match expression
 
-    /// Calculates expression in binary.
-    member executor.CalculateBinary (expression: ExecutionTree) : double =
-        let rec calculate expression =
-            match expression with
-            | Constant (Double d)               -> d
-            | Constant (Symbolic s)             -> s.ToBinary ()
-            | Function (func, args)
-                when func.Arity = args.Count () ->
-                    let apply = functions.[func]
-                    Seq.map calculate args
-                    |> Seq.toList
-                    |> apply 
-            | Function _                        -> failwith "Wrong number of arguments."
-            | Template _                        -> failwith "Attempt to calculate template expression."
-        calculate expression
+        /// Calculates expression in binary.
+        member executor.CalculateBinary (expression: ExecutionTree) : double =
+            let rec calculate expression =
+                match expression with
+                | Constant (Double d)               -> d
+                | Constant (Symbolic s)             -> s.ToBinary ()
+                | Function (func, args)
+                    when func.Arity = args.Count () ->
+                        let apply = functions.[func]
+                        Seq.map calculate args
+                        |> Seq.toList
+                        |> apply 
+                | Function _                        -> failwith "Wrong number of arguments."
+                | Template _                        -> failwith "Attempt to calculate template expression."
+            calculate expression
