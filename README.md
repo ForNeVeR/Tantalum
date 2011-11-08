@@ -3,7 +3,7 @@
 
 About
 -----
-Tantalum a is simple algebraic computation system written in F#.
+Tantalum is a simple algebraic computation system written in F#.
 
 Structure overview
 ------------------
