@@ -22,7 +22,7 @@ namespace Tantalum
 
 /// Type representing expression tree.
 type ExecutionTree =
-    | Function of Function * ExecutionTree seq
+    | Function of Function * ExecutionTree list
     | Constant of Constant
     | Template of Template
 
@@ -39,6 +39,6 @@ type ExecutionTree =
             | _ -> 
                 let buffer = ref (sprintf "%s " f.Id)
                 args
-                |> Seq.iter (fun arg -> buffer := sprintf "%s %s" !buffer (arg.ToString ()))
+                |> List.iter (fun arg -> buffer := sprintf "%s %s" !buffer (arg.ToString ()))
                 !buffer
         | Template _ -> "Template"

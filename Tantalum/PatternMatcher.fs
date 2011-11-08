@@ -33,7 +33,7 @@ type PatternMatcher (patterns : Pattern seq) =
         match pattern with
         | (Template (Variable var)) -> variables.[var]
         | Constant _ as c           -> c
-        | Function (f, args)        -> Function (f, Seq.map (fun pat -> patternReplace pat variables) args)
+        | Function (f, args)        -> Function (f, List.map (fun pat -> patternReplace pat variables) args)
         | _                         -> failwith "Invalid or unmatched pattern."
 
     let rec mapVariables (pattern : ExecutionTree) (expression : ExecutionTree) (variables : VariableDict) : unit =
@@ -45,7 +45,7 @@ type PatternMatcher (patterns : Pattern seq) =
             | _                               -> failwithf "Cannot redefine variable %s." name                 
         | (Function (f1, args1),     Function (f2, args2))
             when f1 = f2                   ->
-            Seq.iter2 (fun pat arg -> mapVariables pat arg variables) args1 args2
+            List.iter2 (fun pat arg -> mapVariables pat arg variables) args1 args2
         | _                                -> () 
 
     let rec straightMatch (pattern : ExecutionTree) (expression : ExecutionTree) : bool =
@@ -57,8 +57,8 @@ type PatternMatcher (patterns : Pattern seq) =
         | (Template One,            e) when one e     -> true
         | (Function (func1, args1), Function (func2, args2))
             when func1 = func2                        ->
-            Seq.map2 straightMatch args1 args2
-            |> Seq.forall (fun b -> b)
+            List.map2 straightMatch args1 args2
+            |> List.forall (fun b -> b)
         | _                                           -> false
 
     let rec deepMatchAny (expression : ExecutionTree) : ExecutionTree option =
@@ -75,9 +75,9 @@ type PatternMatcher (patterns : Pattern seq) =
         | None              ->
             match expression with
             | Function (f, args) ->
-                let results = Seq.map (fun arg -> (arg, deepMatchAny arg)) args
-                if Seq.exists (snd >> Option.isSome) results then
-                    Some (Function (f, results |> Seq.map (fun result ->
+                let results = List.map (fun arg -> (arg, deepMatchAny arg)) args
+                if List.exists (snd >> Option.isSome) results then
+                    Some (Function (f, results |> List.map (fun result ->
                         match result with
                         | (_,   Some res) -> res
                         | (arg, None)     -> arg)))
