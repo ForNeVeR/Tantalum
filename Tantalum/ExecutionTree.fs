@@ -20,11 +20,13 @@ THE SOFTWARE. *)
 
 namespace Tantalum
 
+/// Type representing expression tree.
 type ExecutionTree =
     | Function of Function * ExecutionTree seq
     | Constant of Constant
     | Template of Template
 
+    /// Converts object to string.
     override tree.ToString () : string =
         match tree with
         | Constant c -> c.ToString ()

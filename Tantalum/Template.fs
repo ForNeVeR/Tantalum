@@ -20,8 +20,9 @@ THE SOFTWARE. *)
 
 namespace Tantalum
 
+/// Template node of execution tree.
 type Template =
-| Variable of string
-| Anything
-| Zero
-| One
+    | Variable of string
+    | Anything
+    | Zero
+    | One

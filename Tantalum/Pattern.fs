@@ -20,8 +20,12 @@ THE SOFTWARE. *)
 
 namespace Tantalum
 
+/// Type for simplification / normalization pattern.
 type Pattern =
     {
+        /// Left part of pattern (left part of equality operator).
         Left : ExecutionTree;
+
+        /// Right part of pattern (right part of equality operator).
         Right : ExecutionTree
     }

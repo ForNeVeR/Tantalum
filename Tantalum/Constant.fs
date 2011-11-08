@@ -20,10 +20,12 @@ THE SOFTWARE. *)
 
 namespace Tantalum
 
+/// Type representing symbolic or binary constant.
 type Constant =
     | Double of double
     | Symbolic of Symbol
 
+    /// Converts object to string.
     override constant.ToString () : string =
         match constant with
         | Double d   -> sprintf "%fb" d

@@ -25,10 +25,13 @@ open System.Linq
 
 type private Functor = double list -> double
 
+/// Executor is the Tantalum core type. Objects of this type are used to
+/// simplify and calculate expressions.
 type Executor () =
     let functions = new Dictionary<Function, Functor> ()
     let simplificationPatterns = new HashSet<Pattern> ()
 
+    /// Adds unary function to internal storage.
     member executor.AddUnaryFunction (func : Function) (applyFunctor : double -> double) : unit =
         if func.Arity = 1
         then
@@ -39,6 +42,7 @@ type Executor () =
                     | _     -> failwith "Wrong number of arguments for unary function."
         else failwith "Wrong unary function definition."
 
+    /// Adds binary function to internal storage.
     member executor.AddBinaryFunction (func : Function) (applyFunctor : double * double -> double) : unit =
         if func.Arity = 2
         then
@@ -49,17 +53,21 @@ type Executor () =
                     | _            -> failwith "Wrong number of arguments for binary function."
         else failwith "Wrong binary function definition."
 
+    /// Adds simplification pattern to internal storage.
     member executor.AddSimplificationPattern (pattern : Pattern) : unit = 
         simplificationPatterns.Add pattern
         |> ignore
 
+    /// Adds normalization pattern to internal storage.
     member executor.AddNormalizationPattern (pattern : Pattern) : unit =
         ()
 
+    /// Simplifies an expression.
     member executor.CalculateSymbolic (expression: ExecutionTree) : ExecutionTree =
         let matcher = new PatternMatcher (simplificationPatterns)
         matcher.Match expression
 
+    /// Calculates expression in binary.
     member executor.CalculateBinary (expression: ExecutionTree) : double =
         let rec calculate expression =
             match expression with

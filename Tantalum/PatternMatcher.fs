@@ -24,6 +24,7 @@ open System.Collections.Generic
 
 type private VariableDict = Dictionary<string, ExecutionTree>
 
+/// Type for doing pattern matching on expression.
 type PatternMatcher (patterns : Pattern seq) =
     let zero expression = expression = Constant (Symbolic (Symbol "0"))
     let one expression = expression = Constant (Symbolic (Symbol "1"))
@@ -84,6 +85,7 @@ type PatternMatcher (patterns : Pattern seq) =
                     None                
             | _                  -> None
 
+    /// Trying to match all available patterns on expression.
     member matcher.Match (expression : ExecutionTree) : ExecutionTree =
         match deepMatchAny expression with
         | Some newExpression -> matcher.Match newExpression
