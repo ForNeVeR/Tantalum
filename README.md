@@ -11,7 +11,7 @@ Tantalum project consists of two assemblies:
 
 ### Tantalum
 This is a library for possible use by external code. It contains main Tantalum
-types.
+modules and types.
 
 ### Voice
 Contains the input module for string interpreting.

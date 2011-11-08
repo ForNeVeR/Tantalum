@@ -18,20 +18,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE. *)
 
-namespace Tantalum
+module Tantalum.Executor
 
 open System.Collections.Generic
 open System.Linq
 
-type private Functor = double list -> double
+type Functor = double list -> double
 
 /// Executor is the Tantalum core type. Objects of this type are used to
 /// simplify and calculate expressions.
-type Executor () =
+let executor () =
     let functions = new Dictionary<Function, Functor> ()
     let simplificationPatterns = new HashSet<Pattern> ()
 
-    interface IExecutor with
+    {new IExecutor with
         /// Adds unary function to internal storage.
         member executor.AddUnaryFunction (func : Function) (applyFunctor : double -> double) : unit =
             if func.Arity = 1
@@ -83,3 +83,4 @@ type Executor () =
                 | Function _                        -> failwith "Wrong number of arguments."
                 | Template _                        -> failwith "Attempt to calculate template expression."
             calculate expression
+    }

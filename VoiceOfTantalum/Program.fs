@@ -24,6 +24,7 @@ module Tantalum.Voice
 open System
 open FParsec
 open Tantalum
+open Tantalum.Executor
 
 let private expressionParser = new OperatorPrecedenceParser<ExecutionTree, unit, unit> ()
 let private expression = expressionParser.ExpressionParser
@@ -62,7 +63,7 @@ let Parse (input : string) : ExecutionTree =
     | Success (result, _, _) -> result
     | Failure (msg, err, _)  -> failwith msg
 
-let private executor = new Executor ()
+let private executor = executor ()
 
 executor.AddUnaryFunction {Id = "+"; Arity = 1} <| fun a -> a
 executor.AddUnaryFunction {Id = "-"; Arity = 1} <| fun a -> -a
