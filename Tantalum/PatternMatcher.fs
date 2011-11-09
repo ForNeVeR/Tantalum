@@ -28,29 +28,29 @@ type private VariableDict = Dictionary<string, ExecutionTree>
 type PatternMatcher (executor: IExecutor, simplificationPatterns : Pattern seq, normalizationPatterns : Pattern seq) =
     let rec patternReplace pattern (variables : VariableDict) =
         match pattern with
-        | (Template (Variable var)) -> variables.[var]
-        | Constant _ as c           -> c
-        | Function (f, args)        -> Function (f, List.map (fun pat -> patternReplace pat variables) args)
-        | _                         -> failwith "Invalid or unmatched pattern."
+        | Template (Variable var) -> variables.[var]
+        | Constant _ as c         -> c
+        | Function (f, args)      -> Function (f, List.map (fun pat -> patternReplace pat variables) args)
+        | _                       -> failwith "Invalid or unmatched pattern."
 
     let rec mapVariables pattern expression (variables : VariableDict) : unit =
-        match (pattern, expression) with
-        | (Template (Variable name), expr) ->
+        match pattern, expression with
+        | Template (Variable name), expr ->
             match variables.TryGetValue name with
-            | (false, _)                      -> variables.[name] <- expr
-            | (true, value) when value = expr -> ()
-            | _                               -> failwithf "Cannot redefine variable %s." name                 
-        | (Function (f1, args1),     Function (f2, args2))
-            when f1 = f2                   ->
+            | false, _                      -> variables.[name] <- expr
+            | true, value when value = expr -> ()
+            | _                             -> failwithf "Cannot redefine variable %s." name                 
+        | Function (f1, args1),     Function (f2, args2)
+            when f1 = f2                 ->
             List.iter2 (fun pat arg -> mapVariables pat arg variables) args1 args2
-        | _                                -> () 
+        | _                              -> () 
 
     let rec straightMatch pattern expression : bool =
-        match (pattern, expression) with
-        | (Constant _ as c,         e) when executor.CalculateSymbolic e = c -> true
-        | (Template Anything,       _) -> true
-        | (Template (Variable var), _) -> true
-        | (Function (func1, args1), Function (func2, args2))
+        match pattern, expression with
+        | Constant _ as c,         e when executor.CalculateSymbolic e = c -> true
+        | Template Anything,       _ -> true
+        | Template (Variable var), _ -> true
+        | Function (func1, args1), Function (func2, args2)
             when func1 = func2         ->
             List.map2 straightMatch args1 args2
             |> List.forall (fun b -> b)
@@ -59,7 +59,7 @@ type PatternMatcher (executor: IExecutor, simplificationPatterns : Pattern seq, 
     let rec deepMatchAny patterns expression : ExecutionTree option =
         let matchedPattern = 
             patterns
-            |> Seq.map (fun pattern -> (pattern, straightMatch pattern.Left expression))
+            |> Seq.map (fun pattern -> pattern, straightMatch pattern.Left expression)
             |> Seq.tryFind snd
 
         match matchedPattern with
@@ -70,12 +70,12 @@ type PatternMatcher (executor: IExecutor, simplificationPatterns : Pattern seq, 
         | None              ->
             match expression with
             | Function (f, args) ->
-                let results = List.map (fun arg -> (arg, deepMatchAny patterns arg)) args
+                let results = List.map (fun arg -> arg, deepMatchAny patterns arg) args
                 if List.exists (snd >> Option.isSome) results then
                     Some (Function (f, results |> List.map (fun result ->
                         match result with
-                        | (_,   Some res) -> res
-                        | (arg, None)     -> arg)))
+                        | _,   Some res -> res
+                        | arg, None     -> arg)))
                 else
                     None                
             | _                  -> None
