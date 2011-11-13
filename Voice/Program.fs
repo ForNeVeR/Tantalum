@@ -30,7 +30,7 @@ let private expressionParser = new OperatorPrecedenceParser<ExecutionTree, unit,
 let private expression = expressionParser.ExpressionParser
 let private number =
     regex @"[\d]+(\.[\d]+)?([eE][+-]?[\d]+(\.[\d]+)?)?"
-    |>> fun s -> Constant (Symbolic <| Symbol s)
+    |>> fun s -> Constant (Symbolic {Symbol = s})
 
 expressionParser.TermParser <-
     number
@@ -88,8 +88,8 @@ let private simplificationPatterns = [
 
     // a * 0 = 0
     {Left = (Function ({Id = "*"; Arity = 2},
-                       [Template Anything; Constant <| Symbolic (new Symbol ("0"))]));
-    Right = Constant (Symbolic (Symbol "0"))}
+                       [Template Anything; Constant <| Symbolic {Symbol = "0"}]));
+    Right = Constant (Symbolic {Symbol = "0"})}
 ]
 
 let private normalizationPatterns = [

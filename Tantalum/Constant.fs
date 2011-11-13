@@ -21,6 +21,7 @@ THE SOFTWARE. *)
 namespace Tantalum
 
 /// Type representing symbolic or binary constant.
+[<StructuralComparison; StructuralEquality>]
 type Constant =
     | Double of double
     | Symbolic of Symbol

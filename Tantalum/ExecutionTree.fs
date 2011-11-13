@@ -21,6 +21,7 @@ THE SOFTWARE. *)
 namespace Tantalum
 
 /// Type representing expression tree.
+[<StructuralComparison; StructuralEquality>]
 type ExecutionTree =
     | Function of Function * ExecutionTree list
     | Constant of Constant

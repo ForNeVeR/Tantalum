@@ -23,21 +23,14 @@ namespace Tantalum
 open System
 
 /// Type for symbolic number as opposed to "binary" number.
-type Symbol (s : string) = 
+[<StructuralComparison; StructuralEquality>]
+type Symbol =
+    { Symbol : string }
+
     /// Converts symbol to its binary representation.
     member symbol.ToBinary () : double =
-        Double.Parse s
+        Double.Parse symbol.Symbol
 
     /// Converts object to string.
     override symbol.ToString () : string =
-        s
-
-    /// Equates two symbol instances.
-    override symbol.Equals (obj : obj) : bool =
-        match obj with
-        | :? Symbol as symbol2  -> s = symbol2.ToString ()
-        | _                     -> false
-
-    /// Calculates hashcode for symbol.
-    override symbol.GetHashCode () : int =
-        s.GetHashCode ()
+        symbol.Symbol
