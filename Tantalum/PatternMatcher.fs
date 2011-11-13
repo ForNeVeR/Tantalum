@@ -84,12 +84,17 @@ type PatternMatcher (executor: IExecutor, simplificationPatterns : Pattern seq, 
     member matcher.Match (expression : ExecutionTree) : ExecutionTree =
         let simplify expr = deepMatchAny simplificationPatterns expr
         let normalize expr = deepMatchAny normalizationPatterns expr
-        match simplify expression with
-        | Some newExpression -> matcher.Match newExpression
-        | None ->
-            match normalize expression with
-            | Some newExpression ->
-                 match simplify newExpression with
-                 | Some newestExpression -> matcher.Match newestExpression
-                 | None                  -> expression
-            | None               -> expression
+
+        let rec simplifyNormalizeLoop usedExprs expr =
+            match simplify expr with
+            | Some simplified -> simplifyNormalizeLoop (Set.add simplified usedExprs) simplified
+            | None         ->
+                match normalize expr with
+                | Some normalized ->
+                    if Set.contains normalized usedExprs then
+                        normalized
+                    else
+                        simplifyNormalizeLoop (Set.add normalized usedExprs) normalized
+                | None     -> expr
+
+        simplifyNormalizeLoop (new Set<ExecutionTree> ([])) expression
