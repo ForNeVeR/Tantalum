@@ -22,7 +22,7 @@ namespace Tantalum
 
 open System.Collections.Generic
 
-type private VariableDict = Dictionary<string, ExecutionTree>
+type private VariableDict = Dictionary<string, Expression>
 
 /// Type for doing pattern matching on expression.
 type PatternMatcher (executor: IExecutor, simplificationPatterns : Pattern seq, normalizationPatterns : Pattern seq) =
@@ -56,7 +56,7 @@ type PatternMatcher (executor: IExecutor, simplificationPatterns : Pattern seq, 
             |> List.forall (fun b -> b)
         | _                            -> false
 
-    let deepMatchAll patterns expression : ExecutionTree seq =
+    let deepMatchAll patterns expression : Expression seq =
         let rec matchPattern pat expr =
             if straightMatch pat.Left expr then
                 let variables = new VariableDict ()
@@ -85,14 +85,14 @@ type PatternMatcher (executor: IExecutor, simplificationPatterns : Pattern seq, 
          |> Seq.tryFind (fun _ -> true)        
 
     /// Trying to match all available patterns on expression.
-    member matcher.Match (expression : ExecutionTree) : ExecutionTree =
+    member matcher.Match (expression : Expression) : Expression =
         let simplify expr = deepMatchAny simplificationPatterns expr
         
         let normalForms expr =
-            let known = new System.Collections.Generic.HashSet<ExecutionTree> (HashIdentity.Structural)
+            let known = new System.Collections.Generic.HashSet<Expression> (HashIdentity.Structural)
             known.Add expr |> ignore
 
-            let rec generate expr : ExecutionTree seq =
+            let rec generate expr : Expression seq =
                 let added = deepMatchAll normalizationPatterns expr
                 let newExprSequences =
                     added

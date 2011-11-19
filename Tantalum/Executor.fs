@@ -66,12 +66,12 @@ let executor () =
             |> ignore
 
         /// Simplifies an expression.
-        member executor.CalculateSymbolic (expression: ExecutionTree) : ExecutionTree =
+        member executor.CalculateSymbolic (expression: Expression) : Expression =
             let matcher = new PatternMatcher (executor, simplificationPatterns, normalizationPatterns)
             matcher.Match expression
 
         /// Calculates expression in binary.
-        member executor.CalculateBinary (expression: ExecutionTree) : double =
+        member executor.CalculateBinary (expression: Expression) : double =
             let rec calculate expression =
                 match expression with
                 | Constant (Double d)               -> d

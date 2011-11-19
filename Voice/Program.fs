@@ -26,7 +26,7 @@ open FParsec
 open Tantalum
 open Tantalum.Executor
 
-let private expressionParser = new OperatorPrecedenceParser<ExecutionTree, unit, unit> ()
+let private expressionParser = new OperatorPrecedenceParser<Expression, unit, unit> ()
 let private expression = expressionParser.ExpressionParser
 let private number =
     regex @"[\d]+(\.[\d]+)?([eE][+-]?[\d]+(\.[\d]+)?)?"
@@ -58,7 +58,7 @@ RegisterBinaryOperator "/" 2 Associativity.Left
 RegisterBinaryOperator "^" 3 Associativity.Right
 
 /// Parses input string and returns corresponding Expression.
-let Parse (input : string) : ExecutionTree =
+let Parse (input : string) : Expression =
     match run expression input with
     | Success (result, _, _) -> result
     | Failure (msg, err, _)  -> failwith msg

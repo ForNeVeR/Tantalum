@@ -41,7 +41,7 @@
     <Compile Include="Constant.fs" />
     <Compile Include="Function.fs" />
     <Compile Include="Template.fs" />
-    <Compile Include="ExecutionTree.fs" />
+    <Compile Include="Expression.fs" />
     <Compile Include="Pattern.fs" />
     <Compile Include="IExecutor.fs" />
     <Compile Include="PatternMatcher.fs" />

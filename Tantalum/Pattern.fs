@@ -24,8 +24,8 @@ namespace Tantalum
 type Pattern =
     {
         /// Left part of pattern (left part of equality operator).
-        Left : ExecutionTree;
+        Left : Expression;
 
         /// Right part of pattern (right part of equality operator).
-        Right : ExecutionTree
+        Right : Expression
     }

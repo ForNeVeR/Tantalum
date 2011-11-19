@@ -25,5 +25,5 @@ type IExecutor =
     abstract member AddBinaryFunction        : Function -> (double * double -> double) -> unit
     abstract member AddSimplificationPattern : Pattern -> unit
     abstract member AddNormalizationPattern  : Pattern -> unit
-    abstract member CalculateSymbolic        : ExecutionTree -> ExecutionTree
-    abstract member CalculateBinary          : ExecutionTree -> double
+    abstract member CalculateSymbolic        : Expression -> Expression
+    abstract member CalculateBinary          : Expression -> double
