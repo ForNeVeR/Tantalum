@@ -21,16 +21,50 @@ THE SOFTWARE. *)
 namespace Tantalum
 
 open System
+open System.Text.RegularExpressions
 
 /// Type for symbolic number as opposed to "binary" number.
-[<StructuralComparison; StructuralEquality>]
-type Symbol =
-    { Symbol : string }
+[<StructuralEquality; StructuralComparison>]
+type Symbol (mantissa : bigint, power : int) =
+    struct
+        static member Create (s : string) =
+            let parse s =
+                let parseRegex = new Regex (@"(?<integer>\d+)" +
+                                            @"(\.(?<rational>\d+))?" +
+                                            "(" +
+                                                "[eE]" +
+                                                @"(?<exponent>[+-]?\d+)" +
+                                            ")?")
+                let groups = (parseRegex.Match s).Groups
+                let integer = groups.["integer"].Value
+                let rational = groups.["rational"].Value
+                let exponent = groups.["exponent"].Value
+                let power = (if exponent <> "" then Convert.ToInt32 exponent else 0) + rational.Length
+                let mantissa = bigint.Parse (integer + rational)
+                mantissa, power
+    
+            let rec normalize (mantissa : bigint) power =
+                if mantissa % 10I = 0I && not mantissa.IsZero then
+                    normalize (mantissa / 10I) (power + 1)
+                else
+                    mantissa, power
 
-    /// Converts symbol to its binary representation.
-    member symbol.ToBinary () : double =
-        Double.Parse symbol.Symbol
+            let preMantissa, prePower = parse s
+            let mantissa, power = normalize preMantissa prePower
+            new Symbol (mantissa, power)
 
-    /// Converts object to string.
-    override symbol.ToString () : string =
-        symbol.Symbol
+        static member Zero =
+            Symbol.Create "0"
+
+        member symbol.Power = power
+        member symbol.Mantissa = mantissa
+
+        /// Converts symbol to its binary representation.
+        member symbol.ToBinary () : double =
+            let doubleMantissa = Convert.ToDouble (symbol.Mantissa.ToString ())
+            doubleMantissa * Math.Pow (10.0, Convert.ToDouble(symbol.Power))
+
+        /// Converts an object to a string.
+        override symbol.ToString () : string =
+            (symbol.ToBinary ()).ToString ()
+    end

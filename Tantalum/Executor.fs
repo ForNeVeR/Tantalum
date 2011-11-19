@@ -74,8 +74,7 @@ let executor () =
         member executor.CalculateBinary (expression: Expression) : double =
             let rec calculate expression =
                 match expression with
-                | Constant (Double d)               -> d
-                | Constant (Symbolic s)             -> s.ToBinary ()
+                | Constant c                        -> c.ToBinary ()
                 | Function (func, args)
                     when func.Arity = args.Count () ->
                         let apply = functions.[func]

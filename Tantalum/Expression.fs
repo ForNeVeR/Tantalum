@@ -24,7 +24,7 @@ namespace Tantalum
 [<StructuralComparison; StructuralEquality>]
 type Expression =
     | Function of Function * Expression list
-    | Constant of Constant
+    | Constant of Symbol
     | Template of Template
 
     /// Converts object to string.

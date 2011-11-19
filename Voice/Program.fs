@@ -30,7 +30,7 @@ let private expressionParser = new OperatorPrecedenceParser<Expression, unit, un
 let private expression = expressionParser.ExpressionParser
 let private number =
     regex @"[\d]+(\.[\d]+)?([eE][+-]?[\d]+)?"
-    |>> fun s -> Constant (Symbolic {Symbol = s})
+    |>> fun s -> Constant <| Symbol.Create s
 
 expressionParser.TermParser <-
     number
@@ -65,46 +65,7 @@ let Parse (input : string) : Expression =
 
 let private executor = executor ()
 
-executor.AddUnaryFunction {Id = "+"; Arity = 1} <| fun a -> a
-executor.AddUnaryFunction {Id = "-"; Arity = 1} <| fun a -> -a
-    
-executor.AddBinaryFunction {Id = "+"; Arity = 2} <| fun (a, b) -> a + b
-executor.AddBinaryFunction {Id = "-"; Arity = 2} <| fun (a, b) -> a - b
-executor.AddBinaryFunction {Id = "*"; Arity = 2} <| fun (a, b) -> a * b
-executor.AddBinaryFunction {Id = "/"; Arity = 2} <| fun (a, b) -> a / b
-executor.AddBinaryFunction {Id = "^"; Arity = 2} <| Math.Pow
-
-let private simplificationPatterns = [
-    // + a = a
-    {Left = (Function ({Id = "+"; Arity = 1},
-                       [Template (Variable "a")]));
-    Right = (Template (Variable "a"))};
-
-    // - (- a) = a
-    {Left = (Function ({Id = "-"; Arity = 1},
-                       [(Function ({Id = "-"; Arity = 1},
-                                    [Template (Variable "a")]))]));
-    Right = (Template (Variable "a"))};
-
-    // a * 0 = 0
-    {Left = (Function ({Id = "*"; Arity = 2},
-                       [Template Anything; Constant <| Symbolic {Symbol = "0"}]));
-    Right = Constant (Symbolic {Symbol = "0"})}
-]
-
-let private normalizationPatterns = [
-    // a * b = b * a
-    {Left = (Function ({Id = "*"; Arity = 2},
-                       [Template (Variable "a"); Template (Variable "b")]));
-    Right = (Function ({Id = "*"; Arity = 2},
-                       [Template (Variable "b"); Template (Variable "a")]))}
-]
-
-simplificationPatterns
-|> List.iter executor.AddSimplificationPattern
-
-normalizationPatterns
-|> List.iter executor.AddNormalizationPattern
+StandardOperations.Register executor
 
 let private repl =
     while true do
