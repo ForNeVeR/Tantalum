@@ -25,10 +25,15 @@ let public Register (executor : IExecutor) =
                                         [Template (Variable "a")]))]));
         Right = (Template (Variable "a"))};
 
+        // a + 0 = a
+        {Left = (Function ({Id = "+"; Arity = 2},
+                            [Template (Variable "a"); Constant <| Symbolic {Symbol = "0"}]));
+         Right = Template <| Variable "a"};
+
         // a * 0 = 0
         {Left = (Function ({Id = "*"; Arity = 2},
                             [Template Anything; Constant <| Symbolic {Symbol = "0"}]));
-        Right = Constant (Symbolic {Symbol = "0"})}
+        Right = Constant (Symbolic {Symbol = "0"})}        
     ]
 
     let normalizationPatterns = [
