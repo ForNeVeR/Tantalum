@@ -45,6 +45,14 @@ let public Register (executor : IExecutor) =
     ]
 
     let normalizationPatterns = [
+        // a + b = b + a
+        {Left = Function ({Id = "+"; Arity = 2},
+                          [Template <| Variable "a";
+                           Template <| Variable "b"]);
+         Right = Function ({Id = "+"; Arity = 2},
+                           [Template <| Variable "b";
+                            Template <| Variable "a"])}
+
         // a * b = b * a
         {Left = Function ({Id = "*"; Arity = 2},
                           [Template <| Variable "a";
