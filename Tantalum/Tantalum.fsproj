@@ -46,6 +46,7 @@
     <Compile Include="IExecutor.fs" />
     <Compile Include="PatternMatcher.fs" />
     <Compile Include="Executor.fs" />
+    <Compile Include="StandardOperations.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
