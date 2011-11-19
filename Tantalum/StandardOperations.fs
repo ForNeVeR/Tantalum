@@ -28,20 +28,20 @@ let public Register (executor : IExecutor) =
         // a + 0 = a
         {Left = Function ({Id = "+"; Arity = 2},
                           [Template <| Variable "a";
-                           Constant <| Symbolic {Symbol = "0"}]);
+                           Constant Symbol.Zero]);
          Right = Template <| Variable "a"};
 
         // a * 0 = 0
         {Left = Function ({Id = "*"; Arity = 2},
                           [Template Anything;
-                           Constant <| Symbolic {Symbol = "0"}]);
-         Right = Constant <| Symbolic {Symbol = "0"}};
+                           Constant Symbol.Zero]);
+         Right = Constant Symbol.Zero};
 
          // 0 / a = 0
          {Left = Function ({Id = "/"; Arity = 2},
-                           [Constant <| Symbolic {Symbol = "0"};
+                           [Constant Symbol.Zero;
                             Template Anything]);
-          Right = Constant <| Symbolic {Symbol = "0"}}
+          Right = Constant Symbol.Zero}
     ]
 
     let normalizationPatterns = [

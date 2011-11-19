@@ -24,7 +24,7 @@ namespace Tantalum
 [<StructuralComparison; StructuralEquality>]
 type ExecutionTree =
     | Function of Function * ExecutionTree list
-    | Constant of Constant
+    | Constant of Symbol
     | Template of Template
 
     /// Converts object to string.
