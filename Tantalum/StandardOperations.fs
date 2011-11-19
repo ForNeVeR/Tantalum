@@ -35,7 +35,13 @@ let public Register (executor : IExecutor) =
         {Left = Function ({Id = "*"; Arity = 2},
                           [Template Anything;
                            Constant <| Symbolic {Symbol = "0"}]);
-         Right = Constant <| Symbolic {Symbol = "0"}}
+         Right = Constant <| Symbolic {Symbol = "0"}};
+
+         // 0 / a = 0
+         {Left = Function ({Id = "/"; Arity = 2},
+                           [Constant <| Symbolic {Symbol = "0"};
+                            Template Anything]);
+          Right = Constant <| Symbolic {Symbol = "0"}}
     ]
 
     let normalizationPatterns = [
