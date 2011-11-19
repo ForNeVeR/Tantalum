@@ -56,45 +56,68 @@ type PatternMatcher (executor: IExecutor, simplificationPatterns : Pattern seq, 
             |> List.forall (fun b -> b)
         | _                            -> false
 
-    let rec deepMatchAny patterns expression : ExecutionTree option =
-        let matchedPattern = 
-            patterns
-            |> Seq.map (fun pattern -> pattern, straightMatch pattern.Left expression)
-            |> Seq.tryFind snd
+    let deepMatchAll patterns expression : ExecutionTree seq =
+        let rec matchPattern pat expr =
+            if straightMatch pat.Left expr then
+                let variables = new VariableDict ()
+                mapVariables pat.Left expr variables
+                Some (patternReplace pat.Right variables)
+            else
+                match expr with
+                | Function (f, args) ->
+                    let results = List.map (fun arg -> arg, matchPattern pat arg) args
+                    if List.exists (snd >> Option.isSome) results then
+                        Some (Function (f, results |> List.map (fun result ->
+                            match result with
+                            | _,   Some res -> res
+                            | arg, None     -> arg)))
+                    else
+                        None                
+                | _                  -> None
 
-        match matchedPattern with
-        | Some (pattern, _) ->
-            let variables = new VariableDict ()
-            mapVariables pattern.Left expression variables
-            Some (patternReplace pattern.Right variables)
-        | None              ->
-            match expression with
-            | Function (f, args) ->
-                let results = List.map (fun arg -> arg, deepMatchAny patterns arg) args
-                if List.exists (snd >> Option.isSome) results then
-                    Some (Function (f, results |> List.map (fun result ->
-                        match result with
-                        | _,   Some res -> res
-                        | arg, None     -> arg)))
-                else
-                    None                
-            | _                  -> None
+        patterns
+        |> Seq.map (fun pat -> matchPattern pat expression)
+        |> Seq.filter Option.isSome
+        |> Seq.map Option.get
+
+    let deepMatchAny patterns expression =
+         deepMatchAll patterns expression
+         |> Seq.tryFind (fun _ -> true)        
 
     /// Trying to match all available patterns on expression.
     member matcher.Match (expression : ExecutionTree) : ExecutionTree =
         let simplify expr = deepMatchAny simplificationPatterns expr
-        let normalize expr = deepMatchAny normalizationPatterns expr
+        
+        let normalForms expr =
+            let known = new System.Collections.Generic.HashSet<ExecutionTree> (HashIdentity.Structural)
+            known.Add expr |> ignore
 
-        let rec simplifyNormalizeLoop usedExprs expr =
-            match simplify expr with
-            | Some simplified -> simplifyNormalizeLoop (Set.add simplified usedExprs) simplified
-            | None         ->
-                match normalize expr with
-                | Some normalized ->
-                    if Set.contains normalized usedExprs then
-                        normalized
-                    else
-                        simplifyNormalizeLoop (Set.add normalized usedExprs) normalized
-                | None     -> expr
+            let rec generate expr : ExecutionTree seq =
+                let added = deepMatchAll normalizationPatterns expr
+                let newExprSequences =
+                    added
+                    |> Seq.filter known.Add
+                    |> Seq.map generate
+                Seq.concat [added; newExprSequences
+                                   |> Seq.concat]
+            
+            let generated = generate expr
+            Seq.concat [seq { yield expr }; generated]
+            
+        let rec simplificationLoop expr =
+            let formsSimplified =
+                normalForms expr
+                |> Seq.map (fun expr -> expr, simplify expr)
+            let simplifications =
+                formsSimplified
+                |> Seq.map snd
+                |> Seq.filter Option.isSome
+                |> Seq.map Option.get
+            let result =
+                simplifications
+                |> Seq.tryFind (fun _ -> true)
+            match result with
+            | Some r -> simplificationLoop r
+            | None   -> expr
 
-        simplifyNormalizeLoop (new Set<ExecutionTree> ([])) expression
+        simplificationLoop expression
