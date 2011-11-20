@@ -23,21 +23,28 @@ module Tantalum.Executor
 open System.Collections.Generic
 open System.Linq
 
-type Functor = double list -> double
+type CalcFunction = Symbol list -> Expression
+type ApplyFunction = double list -> double
 
 /// Executor is the Tantalum core type. Objects of this type are used to
 /// simplify and calculate expressions.
 let executor () =
-    let functions = new Dictionary<Function, Functor> ()
+    let calcFunctions = new Dictionary<Function, CalcFunction> ()
+    let applyFunctions = new Dictionary<Function, ApplyFunction> ()
     let simplificationPatterns = new HashSet<Pattern> ()
     let normalizationPatterns = new HashSet<Pattern> ()
 
     {new IExecutor with
         /// Adds unary function to internal storage.
-        member executor.AddUnaryFunction (func : Function) (applyFunctor : double -> double) : unit =
+        member executor.AddUnaryFunction func calcFunctor applyFunctor =
             if func.Arity = 1
             then
-                functions.[func] <-
+                calcFunctions.[func] <-
+                    fun args ->
+                        match args with
+                        | [arg] -> calcFunctor arg
+                        | _     -> failwith "Wrong number of arguments for unary function."
+                applyFunctions.[func] <-
                     fun args ->
                         match args with
                         | [arg] -> applyFunctor arg
@@ -45,10 +52,15 @@ let executor () =
             else failwith "Wrong unary function definition."
 
         /// Adds binary function to internal storage.
-        member executor.AddBinaryFunction (func : Function) (applyFunctor : double * double -> double) : unit =
+        member executor.AddBinaryFunction func calcFunctor applyFunctor =
             if func.Arity = 2
             then
-                functions.[func] <-
+                calcFunctions.[func] <-
+                    fun args ->
+                        match args with
+                        | [arg1; arg2] -> calcFunctor (arg1, arg2)
+                        | _            -> failwith "Wrong number of arguments for binary function."
+                applyFunctions.[func] <-
                     fun args ->
                         match args with
                         | [arg1; arg2] -> applyFunctor (arg1, arg2)
@@ -56,28 +68,28 @@ let executor () =
             else failwith "Wrong binary function definition."
 
         /// Adds simplification pattern to internal storage.
-        member executor.AddSimplificationPattern (pattern : Pattern) : unit = 
+        member executor.AddSimplificationPattern pattern = 
             simplificationPatterns.Add pattern
             |> ignore
 
         /// Adds normalization pattern to internal storage.
-        member executor.AddNormalizationPattern (pattern : Pattern) : unit =
+        member executor.AddNormalizationPattern pattern =
             normalizationPatterns.Add pattern
             |> ignore
 
         /// Simplifies an expression.
-        member executor.CalculateSymbolic (expression: Expression) : Expression =
+        member executor.CalculateSymbolic expression =
             let matcher = new PatternMatcher (executor, simplificationPatterns, normalizationPatterns)
             matcher.Match expression
 
         /// Calculates expression in binary.
-        member executor.CalculateBinary (expression: Expression) : double =
+        member executor.CalculateBinary expression =
             let rec calculate expression =
                 match expression with
                 | Constant c                        -> c.ToBinary ()
                 | Function (func, args)
                     when func.Arity = args.Count () ->
-                        let apply = functions.[func]
+                        let apply = applyFunctions.[func]
                         Seq.map calculate args
                         |> Seq.toList
                         |> apply 

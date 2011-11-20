@@ -25,14 +25,18 @@ open System
 
 /// Registers standard operations for use in executor.
 let public Register (executor : IExecutor) =
-    executor.AddUnaryFunction {Id = "+"; Arity = 1} <| fun a -> a
-    executor.AddUnaryFunction {Id = "-"; Arity = 1} <| fun a -> -a
+    executor.AddUnaryFunction {Id = "+"; Arity = 1} (fun a -> Constant a) (fun a -> a)
+    executor.AddUnaryFunction {Id = "-"; Arity = 1} (fun a -> 
+        Function ({Id = "-"; Arity = 1}, [Constant a])) (fun a -> -a)
     
-    executor.AddBinaryFunction {Id = "+"; Arity = 2} <| fun (a, b) -> a + b
-    executor.AddBinaryFunction {Id = "-"; Arity = 2} <| fun (a, b) -> a - b
-    executor.AddBinaryFunction {Id = "*"; Arity = 2} <| fun (a, b) -> a * b
-    executor.AddBinaryFunction {Id = "/"; Arity = 2} <| fun (a, b) -> a / b
-    executor.AddBinaryFunction {Id = "^"; Arity = 2} <| Math.Pow
+    executor.AddBinaryFunction {Id = "+"; Arity = 2} (fun (a, b) -> Constant (a + b)) (fun (a, b) -> a + b)
+    executor.AddBinaryFunction {Id = "-"; Arity = 2} (fun (a, b) -> Constant (a - b)) (fun (a, b) -> a - b)
+    executor.AddBinaryFunction {Id = "*"; Arity = 2} (fun (a, b) -> 
+    Function ({Id = "*"; Arity = 2}, [Constant a; Constant b])) (fun (a, b) -> a * b)
+    executor.AddBinaryFunction {Id = "/"; Arity = 2} (fun (a, b) ->
+        Function ({Id = "/"; Arity = 2}, [Constant a; Constant b])) (fun (a, b) -> a / b)
+    executor.AddBinaryFunction {Id = "^"; Arity = 2} (fun (a, b) ->
+        Function ({Id = "^"; Arity = 2}, [Constant a; Constant b])) Math.Pow
 
     let simplificationPatterns = [
         // + a = a
