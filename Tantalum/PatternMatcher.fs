@@ -25,7 +25,7 @@ open System.Collections.Generic
 type private VariableDict = Dictionary<string, Expression>
 
 /// Type for doing pattern matching on expression.
-type PatternMatcher (executor: IExecutor, simplificationPatterns : Pattern seq, normalizationPatterns : Pattern seq) =
+type PatternMatcher (executor : IExecutor, simplificationPatterns : Pattern seq, normalizationPatterns : Pattern seq) =
     let rec patternReplace pattern (variables : VariableDict) =
         match pattern with
         | Template (Variable var) -> variables.[var]
