@@ -27,6 +27,14 @@ open System.Text.RegularExpressions
 [<StructuralEquality; StructuralComparison>]
 type Symbol (mantissa : bigint, power : int) =
     struct
+        static member private Normalize (mantissa : bigint) power =
+            let rec normalize mantissa power =
+                if mantissa % 10I = 0I && not mantissa.IsZero then
+                    normalize (mantissa / 10I) (power + 1)
+                else
+                    mantissa, power
+            normalize mantissa power
+                   
         static member Create (s : string) =
             let parse s =
                 let parseRegex = new Regex (@"(?<integer>\d+)" +
@@ -42,15 +50,9 @@ type Symbol (mantissa : bigint, power : int) =
                 let power = (if exponent <> "" then Convert.ToInt32 exponent else 0) + rational.Length
                 let mantissa = bigint.Parse (integer + rational)
                 mantissa, power
-    
-            let rec normalize (mantissa : bigint) power =
-                if mantissa % 10I = 0I && not mantissa.IsZero then
-                    normalize (mantissa / 10I) (power + 1)
-                else
-                    mantissa, power
 
             let preMantissa, prePower = parse s
-            let mantissa, power = normalize preMantissa prePower
+            let mantissa, power = Symbol.Normalize preMantissa prePower
             new Symbol (mantissa, power)
 
         static member Zero =
@@ -58,6 +60,28 @@ type Symbol (mantissa : bigint, power : int) =
 
         member symbol.Power = power
         member symbol.Mantissa = mantissa
+
+        static member (+) (a : Symbol, b : Symbol) =
+            let rec pow a b =
+                a * pow a (b - 1)
+                    
+            let minPower = min a.Power b.Power
+            let mantissaA = a.Mantissa * pow 10I (a.Power - minPower)
+            let mantissaB = b.Mantissa * pow 10I (a.Power - minPower)
+            let sumMantissa = mantissaA + mantissaB
+            let mantissa, power = Symbol.Normalize sumMantissa minPower
+            new Symbol (mantissa, power)
+
+        static member (-) (a : Symbol, b : Symbol) =
+            let rec pow a b =
+                a * pow a (b - 1)
+                    
+            let minPower = min a.Power b.Power
+            let mantissaA = a.Mantissa * pow 10I (a.Power - minPower)
+            let mantissaB = b.Mantissa * pow 10I (a.Power - minPower)
+            let sumMantissa = mantissaA - mantissaB
+            let mantissa, power = Symbol.Normalize sumMantissa minPower
+            new Symbol (mantissa, power)
 
         /// Converts symbol to its binary representation.
         member symbol.ToBinary () : double =
