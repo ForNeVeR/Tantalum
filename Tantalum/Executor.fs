@@ -79,8 +79,24 @@ let executor () =
 
         /// Simplifies an expression.
         member executor.CalculateSymbolic expression =
-            let matcher = new PatternMatcher (executor, simplificationPatterns, normalizationPatterns)
-            matcher.Match expression
+            let onlySymbols exprs =
+                exprs
+                |> List.forall (fun expr ->
+                    match expr with
+                    | Constant _ -> true
+                    | _          -> false)
+
+            match expression with
+            | Function (func, args) when onlySymbols args ->
+                args
+                |> List.map (fun expr ->
+                    match expr with
+                    | Constant symbol -> symbol
+                    | _               -> failwith "Not a symbol.")
+                |> calcFunctions.[func] 
+            | _ ->                    
+                let matcher = new PatternMatcher (executor, simplificationPatterns, normalizationPatterns)
+                matcher.Match expression
 
         /// Calculates expression in binary.
         member executor.CalculateBinary expression =
