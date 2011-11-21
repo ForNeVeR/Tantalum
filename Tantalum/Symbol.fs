@@ -63,22 +63,28 @@ type Symbol (mantissa : bigint, power : int) =
 
         static member (+) (a : Symbol, b : Symbol) =
             let rec pow a b =
-                a * pow a (b - 1)
+                if b = 0 then
+                    1I
+                else
+                    a * pow a (b - 1)
                     
             let minPower = min a.Power b.Power
             let mantissaA = a.Mantissa * pow 10I (a.Power - minPower)
-            let mantissaB = b.Mantissa * pow 10I (a.Power - minPower)
+            let mantissaB = b.Mantissa * pow 10I (b.Power - minPower)
             let sumMantissa = mantissaA + mantissaB
             let mantissa, power = Symbol.Normalize sumMantissa minPower
             new Symbol (mantissa, power)
 
         static member (-) (a : Symbol, b : Symbol) =
             let rec pow a b =
-                a * pow a (b - 1)
+                if b = 0 then
+                    1I
+                else
+                    a * pow a (b - 1)
                     
             let minPower = min a.Power b.Power
             let mantissaA = a.Mantissa * pow 10I (a.Power - minPower)
-            let mantissaB = b.Mantissa * pow 10I (a.Power - minPower)
+            let mantissaB = b.Mantissa * pow 10I (b.Power - minPower)
             let sumMantissa = mantissaA - mantissaB
             let mantissa, power = Symbol.Normalize sumMantissa minPower
             new Symbol (mantissa, power)
