@@ -47,7 +47,7 @@ type Symbol (mantissa : bigint, power : int) =
                 let integer = groups.["integer"].Value
                 let rational = groups.["rational"].Value
                 let exponent = groups.["exponent"].Value
-                let power = (if exponent <> "" then Convert.ToInt32 exponent else 0) + rational.Length
+                let power = (if exponent <> "" then Convert.ToInt32 exponent else 0) - rational.Length
                 let mantissa = bigint.Parse (integer + rational)
                 mantissa, power
 
