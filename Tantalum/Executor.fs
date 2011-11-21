@@ -93,8 +93,8 @@ let executor () =
                     match expr with
                     | Constant symbol -> symbol
                     | _               -> failwith "Not a symbol.")
-                |> calcFunctions.[func] 
-            | _ ->                    
+                |> calcFunctions.[func]
+            | _ ->
                 let matcher = new PatternMatcher (executor, simplificationPatterns, normalizationPatterns)
                 matcher.Match expression
 
@@ -108,7 +108,7 @@ let executor () =
                         let apply = applyFunctions.[func]
                         Seq.map calculate args
                         |> Seq.toList
-                        |> apply 
+                        |> apply
                 | Function _                        -> failwith "Wrong number of arguments."
                 | Template _                        -> failwith "Attempt to calculate template expression."
             calculate expression
