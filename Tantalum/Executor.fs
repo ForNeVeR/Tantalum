@@ -79,24 +79,41 @@ let executor () =
 
         /// Simplifies an expression.
         member executor.CalculateSymbolic expression =
-            let onlySymbols exprs =
-                exprs
-                |> List.forall (fun expr ->
-                    match expr with
-                    | Constant _ -> true
-                    | _          -> false)
+            let rec evaluate expr = 
+                let onlySymbols exprs =
+                    exprs
+                    |> List.forall (fun expr ->
+                        match expr with
+                        | Constant _ -> true
+                        | _          -> false)
 
-            match expression with
-            | Function (func, args) when onlySymbols args ->
-                args
-                |> List.map (fun expr ->
-                    match expr with
-                    | Constant symbol -> symbol
-                    | _               -> failwith "Not a symbol.")
-                |> calcFunctions.[func]
-            | _ ->
-                let matcher = new PatternMatcher (executor, simplificationPatterns, normalizationPatterns)
-                matcher.Match expression
+                match expr with
+                | Function (func, args) when onlySymbols args ->
+                    args
+                    |> List.map (fun expr ->
+                        match expr with
+                        | Constant symbol -> symbol
+                        | _               -> failwith "Not a symbol.")
+                    |> calcFunctions.[func]
+                | Function (func, args)                       ->
+                    Function (func, args
+                                    |> List.map evaluate)
+                | Constant _ as c                             -> c
+                | _ as other                                  -> other
+
+            let rec calculate expr =            
+                let evaluated = evaluate expr
+                if evaluated = expr then
+                    let matcher = new PatternMatcher (executor, simplificationPatterns, normalizationPatterns)
+                    let simplified = matcher.Match expr
+                    if simplified = expr then
+                        expr
+                    else
+                        calculate simplified
+                else
+                    calculate evaluated
+
+            calculate expression
 
         /// Calculates expression in binary.
         member executor.CalculateBinary expression =
