@@ -8,7 +8,7 @@
     <ProjectGuid>{11e9305c-10ce-48b0-958a-92ee8dc86465}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>VoiceOfTantalum</RootNamespace>
-    <AssemblyName>VoiceOfTantalum</AssemblyName>
+    <AssemblyName>Voice</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <Name>Voice</Name>
