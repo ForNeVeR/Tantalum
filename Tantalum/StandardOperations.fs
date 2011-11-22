@@ -62,6 +62,12 @@ let public Register (executor : IExecutor) =
                            Constant Symbol.Zero]);
          Right = Constant Symbol.Zero};
 
+         // a * 1 = a
+         {Left = Function ({Id = "*"; Arity = 2},
+                          [Template <| Variable "a";
+                           Constant <| Symbol.Create "1"]);
+         Right = Template <| Variable "a"};
+
          // 0 / a = 0
          {Left = Function ({Id = "/"; Arity = 2},
                            [Constant Symbol.Zero;
