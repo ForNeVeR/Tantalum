@@ -38,6 +38,15 @@ let public Register (executor : IExecutor) =
     executor.AddBinaryFunction {Id = "^"; Arity = 2} (fun (a, b) ->
         Function ({Id = "^"; Arity = 2}, [Constant a; Constant b])) Math.Pow
 
+    executor.AddUnaryFunction {Id = "sin"; Arity = 1} (fun a -> Function ({Id = "sin"; Arity = 1},
+                                                        [Constant a])) (fun a -> Math.Sin a)
+    executor.AddUnaryFunction {Id = "cos"; Arity = 1} (fun a -> Function ({Id = "cos"; Arity = 1},
+                                                        [Constant a])) (fun a -> Math.Cos a)
+    executor.AddUnaryFunction {Id = "tg"; Arity = 1} (fun a -> Function ({Id = "tg"; Arity = 1},
+                                                        [Constant a])) (fun a -> Math.Tan a)
+    executor.AddUnaryFunction {Id = "ctg"; Arity = 1} (fun a -> Function ({Id = "ctg"; Arity = 1},
+                                                        [Constant a])) (fun a -> 1.0 / Math.Tan a)
+
     let simplificationPatterns = [
         // + a = a
         {Left = Function ({Id = "+"; Arity = 1},

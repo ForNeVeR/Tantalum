@@ -48,6 +48,11 @@ let RegisterBinaryOperator (symbol : string) (priority : int) (associativity : A
     <| InfixOperator (symbol, spaces, priority, associativity,
                         fun a b -> Function ({Id = symbol; Arity = 2}, [a; b]))
 
+let RegisterUnaryFunction (name : string) =
+    expressionParser.AddOperator
+    <| PrefixOperator (name, spaces, 3, false,
+                        fun expr -> Function ({Id = name; Arity = 1}, [expr]))
+
 RegisterUnaryOperator "+" 1
 RegisterUnaryOperator "-" 1
 
@@ -56,6 +61,11 @@ RegisterBinaryOperator "+" 1 Associativity.Left
 RegisterBinaryOperator "*" 2 Associativity.Left
 RegisterBinaryOperator "/" 2 Associativity.Left
 RegisterBinaryOperator "^" 3 Associativity.Right
+
+RegisterUnaryFunction "sin"
+RegisterUnaryFunction "cos"
+RegisterUnaryFunction "tg"
+RegisterUnaryFunction "ctg"
 
 /// Parses input string and returns corresponding Expression.
 let Parse (input : string) : Expression =
