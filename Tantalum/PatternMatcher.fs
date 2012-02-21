@@ -43,7 +43,7 @@ type PatternMatcher (executor : IExecutor, simplificationPatterns : Pattern seq,
         | Function (f1, args1),     Function (f2, args2)
             when f1 = f2                 ->
             List.iter2 (fun pat arg -> mapVariables pat arg variables) args1 args2
-        | _                              -> () 
+        | _                              -> ()
 
     let rec straightMatch pattern expression : bool =
         match pattern, expression with
