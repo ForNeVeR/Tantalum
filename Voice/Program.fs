@@ -32,9 +32,11 @@ let private number =
     regex @"[\d]+(\.[\d]+)?([eE][+-]?[\d]+)?"
     |>> fun s -> Constant <| Symbol.Create s
 
-expressionParser.TermParser <-
-    number
+let private tokenParser =
+    (spaces >>. number .>> spaces)
     <|> between (pstring "(") (pstring ")") expression
+
+expressionParser.TermParser <- tokenParser
 
 /// Registers prefix unary operator for use in input stream.
 let RegisterUnaryOperator (symbol : string) (priority : int) : unit =
