@@ -81,7 +81,15 @@ let public Register (executor : IExecutor) =
          {Left = Function ({Id = "/"; Arity = 2},
                            [Constant Symbol.Zero;
                             Template Anything]);
-          Right = Constant Symbol.Zero}
+          Right = Constant Symbol.Zero};
+
+         // a / b * b = a
+         {Left = Function({Id = "*"; Arity = 2},
+                          [Function({Id = "/"; Arity = 2},
+                                    [Template (Variable "a");
+                                     Template (Variable "b")]);
+                           Template (Variable "b")]);
+          Right = Template (Variable "a")}
     ]
 
     let normalizationPatterns = [
