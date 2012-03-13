@@ -39,26 +39,33 @@ type PatternMatcher (executor : IExecutor, simplificationPatterns : Pattern seq,
             match variables.TryGetValue name with
             | false, _                      -> variables.[name] <- expr
             | true, value when value = expr -> ()
-            | _                             -> failwithf "Cannot redefine variable %s." name                 
+            | _                             -> failwithf "Cannot redefine variable %s." name
         | Function (f1, args1),     Function (f2, args2)
             when f1 = f2                 ->
             List.iter2 (fun pat arg -> mapVariables pat arg variables) args1 args2
         | _                              -> ()
 
-    let rec straightMatch pattern expression : bool =
+    let rec straightMatch pattern expression (variables : VariableDict) : bool =
         match pattern, expression with
-        | Constant _ as c,         e when executor.CalculateSymbolic e = c -> true
-        | Template Anything,       _ -> true
-        | Template (Variable var), _ -> true
+        | Constant _ as c, e
+            when executor.CalculateSymbolic e = c      -> true
+        | Template Anything, _                         -> true
+        | Template (Variable var), e
+            when not (variables.ContainsKey var)       ->
+            variables.Add(var, e)
+            true
+        | Template (Variable var), e
+            when snd (variables.TryGetValue var) = e   -> true
         | Function (func1, args1), Function (func2, args2)
-            when func1 = func2         ->
-            List.map2 straightMatch args1 args2
+            when func1 = func2                         ->
+            List.map2 (fun a b -> straightMatch a b variables) args1 args2
             |> List.forall (fun b -> b)
-        | _                            -> false
+        | _                                            -> false
 
     let deepMatchAll patterns expression : Expression seq =
         let rec matchPattern pat expr =
-            if straightMatch pat.Left expr then
+            let variables = new VariableDict()
+            if straightMatch pat.Left expr variables then
                 let variables = new VariableDict ()
                 mapVariables pat.Left expr variables
                 Some (patternReplace pat.Right variables)
