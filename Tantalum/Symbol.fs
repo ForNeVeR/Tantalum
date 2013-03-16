@@ -37,7 +37,7 @@ type Symbol (mantissa : bigint, power : int) =
                    
         static member Create (s : string) =
             let parse s =
-                let parseRegex = new Regex (@"(?<integer>\d+)" +
+                let parseRegex = new Regex (@"(?<integer>[+-]?\d+)" +
                                             @"(\.(?<rational>\d+))?" +
                                             "(" +
                                                 "[eE]" +
