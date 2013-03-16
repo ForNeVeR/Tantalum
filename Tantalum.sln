@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Voice", "Voice\Voice.fsproj", "{11E9305C-10CE-48B0-958A-92EE8DC86465}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Tests", "Tests\Tests.fsproj", "{8823C683-40CD-4E5D-AB8F-1267BD0BBDA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -24,6 +26,10 @@ Global
 		{11E9305C-10CE-48B0-958A-92EE8DC86465}.Debug|x86.Build.0 = Debug|x86
 		{11E9305C-10CE-48B0-958A-92EE8DC86465}.Release|x86.ActiveCfg = Release|x86
 		{11E9305C-10CE-48B0-958A-92EE8DC86465}.Release|x86.Build.0 = Release|x86
+		{8823C683-40CD-4E5D-AB8F-1267BD0BBDA8}.Debug|x86.ActiveCfg = Debug|x86
+		{8823C683-40CD-4E5D-AB8F-1267BD0BBDA8}.Debug|x86.Build.0 = Debug|x86
+		{8823C683-40CD-4E5D-AB8F-1267BD0BBDA8}.Release|x86.ActiveCfg = Release|x86
+		{8823C683-40CD-4E5D-AB8F-1267BD0BBDA8}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
