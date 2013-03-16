@@ -82,14 +82,6 @@ let public Register (executor : IExecutor) =
                            [Constant Symbol.Zero;
                             Template Anything]);
           Right = Constant Symbol.Zero};
-
-         // a / b * b = a
-         {Left = Function({Id = "*"; Arity = 2},
-                          [Function({Id = "/"; Arity = 2},
-                                    [Template (Variable "a");
-                                     Template (Variable "b")]);
-                           Template (Variable "b")]);
-          Right = Template (Variable "a")}
     ]
 
     let normalizationPatterns = [
@@ -107,7 +99,41 @@ let public Register (executor : IExecutor) =
                            Template <| Variable "b"]);
          Right = Function ({Id = "*"; Arity = 2},
                            [Template <| Variable "b";
-                            Template <| Variable "a"])}
+                            Template <| Variable "a"])};
+
+        // a / b = a * (1 / b)
+        {Left = Function({Id = "/"; Arity = 2},
+                         [Template (Variable "a");
+                          Template (Variable "b")]);
+         Right = Function({Id = "*"; Arity = 2},
+                          [Template (Variable "a");
+                           Function({Id = "/"; Arity = 2},
+                                    [Constant (Symbol (bigint 1, 0));
+                                     Template (Variable "b")])])};
+
+        // (a + b) + c = a + (b + c)
+        {Left = Function({Id = "+"; Arity = 2},
+                         [Function({Id = "+"; Arity = 2},
+                                   [Template (Variable "a");
+                                    Template (Variable "b")]);
+                          Template (Variable "c")]);
+         Right = Function({Id = "+"; Arity = 2},
+                          [Template (Variable "a");
+                           Function({Id = "+"; Arity = 2},
+                                    [Template (Variable "b");
+                                     Template (Variable "c")])])};
+
+        // (a * b) * c = a * (b * c)
+        {Left = Function({Id = "*"; Arity = 2},
+                         [Function({Id = "*"; Arity = 2},
+                                   [Template (Variable "a");
+                                    Template (Variable "b")]);
+                          Template (Variable "c")]);
+         Right = Function({Id = "*"; Arity = 2},
+                          [Template (Variable "a");
+                           Function({Id = "*"; Arity = 2},
+                                    [Template (Variable "b");
+                                     Template (Variable "c")])])}
     ]
 
     simplificationPatterns

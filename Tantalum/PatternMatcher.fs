@@ -26,6 +26,14 @@ type private VariableDict = Dictionary<string, Expression>
 
 /// Type for doing pattern matching on expression.
 type PatternMatcher (executor : IExecutor, simplificationPatterns : Pattern seq, normalizationPatterns : Pattern seq) =
+    let memoize f =
+        let cache = new Dictionary<_, _>()
+        (fun x -> match cache.TryGetValue(x) with
+                    | true, y -> y
+                    | _       -> let v = f(x)
+                                 cache.Add(x, v)
+                                 v)
+
     let rec patternReplace pattern (variables : VariableDict) =
         match pattern with
         | Template (Variable var) -> variables.[var]
@@ -62,7 +70,7 @@ type PatternMatcher (executor : IExecutor, simplificationPatterns : Pattern seq,
             |> List.forall (fun b -> b)
         | _                                            -> false
 
-    let deepMatchAll patterns expression : Expression seq =
+    let deepMatchAllImpl(patterns, expression) : Expression seq =
         let rec matchPattern pat expr =
             let variables = new VariableDict()
             if straightMatch pat.Left expr variables then
@@ -87,20 +95,24 @@ type PatternMatcher (executor : IExecutor, simplificationPatterns : Pattern seq,
         |> Seq.filter Option.isSome
         |> Seq.map Option.get
 
-    let deepMatchAny patterns expression =
-         deepMatchAll patterns expression
-         |> Seq.tryFind (fun _ -> true)        
+    let deepMatchAll = memoize deepMatchAllImpl
+
+    let deepMatchAnyImpl (patterns, expression) =
+         deepMatchAll (patterns, expression)
+         |> Seq.tryFind (fun _ -> true)
+
+    let deepMatchAny = memoize deepMatchAnyImpl
 
     /// Trying to match all available patterns on expression.
     member matcher.Match (expression : Expression) : Expression =
-        let simplify expr = deepMatchAny simplificationPatterns expr
+        let simplify expr = deepMatchAny (simplificationPatterns, expr)
         
         let normalForms expr =
             let known = new System.Collections.Generic.HashSet<Expression> (HashIdentity.Structural)
             known.Add expr |> ignore
 
             let rec generate expr : Expression seq =
-                let added = deepMatchAll normalizationPatterns expr
+                let added = deepMatchAll (normalizationPatterns, expr)
                 let newExprSequences =
                     added
                     |> Seq.filter known.Add
