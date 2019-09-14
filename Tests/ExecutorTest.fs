@@ -1,9 +1,10 @@
 ﻿namespace Tantalum.Test
 
-open Microsoft.VisualStudio.TestTools.UnitTesting
+open NUnit.Framework
+
 open Tantalum
 
-[<TestClass>]
+[<TestFixture>]
 type ExecutorTest() =
     static let parser = Voice.createParser()
     static let executor = Executor.executor()
@@ -12,7 +13,7 @@ type ExecutorTest() =
     static let expression text =
         Voice.Parse parser text
 
-    [<TestMethod>]
+    [<Test>]
     member this.SimpleExpression() =
         let x = expression "2 + 2 * 2"
         let simplified = executor.CalculateSymbolic x

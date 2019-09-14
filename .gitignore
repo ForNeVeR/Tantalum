@@ -1,5 +1,6 @@
-_ReSharper.*
-bin
-obj
-*.suo
+/.idea/
+/.vs/
 /*.user
+
+bin/
+obj/
